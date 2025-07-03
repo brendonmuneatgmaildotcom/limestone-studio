@@ -15,6 +15,11 @@ function App() {
           alt="Limestone Studio"
           className="w-full object-contain rounded-2xl shadow-lg"
         />
+        <img
+          src="/images/limestonePond.jpg" // Rename converted image here
+          alt="Limestone Studio Garden"
+          className="w-full object-contain rounded-2xl shadow-lg"
+        />
 
         {/* Location */}
         <p className="text-sm text-center text-gray-600">
