@@ -16,23 +16,6 @@ function App() {
           className="w-full object-contain rounded-2xl shadow-lg"
         />
 
-		{/* Gallery Section */}
-<div className="bg-white rounded-2xl shadow-md p-6 mt-8">
-  <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <img src="/images/bed.jpg" alt="Bed" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/loo.jpg" alt="Toilet" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/dinner.jpg" alt="Dining" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/door.jpg" alt="Front door" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/hall.jpg" alt="Corridor" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/rev.jpg" alt="Corridor" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/out.jpg" alt="Parking spot" className="rounded-xl object-contain w-full h-56" />
-	<img src="/images/kitch.jpg" alt="Kitchenette" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/shower.jpg" alt="Shower" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/pondrev.jpg" alt="Garden" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/pondfront.jpg" alt="Limestone formation" className="rounded-xl object-contain w-full h-56" />
-
-  </div>
 </div>
         {/* Location */}
         <p className="text-sm text-center text-gray-600">
@@ -63,6 +46,23 @@ function App() {
           </p>
         </div>
 
+		{/* Gallery Section */}
+<div className="bg-white rounded-2xl shadow-md p-6 mt-8">
+  <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <img src="/images/bed.jpg" alt="Bed" className="rounded-xl object-contain w-full h-56" />
+    <img src="/images/loo.jpg" alt="Toilet" className="rounded-xl object-contain w-full h-56" />
+    <img src="/images/dinner.jpg" alt="Dining" className="rounded-xl object-contain w-full h-56" />
+    <img src="/images/door.jpg" alt="Front door" className="rounded-xl object-contain w-full h-56" />
+    <img src="/images/hall.jpg" alt="Corridor" className="rounded-xl object-contain w-full h-56" />
+    <img src="/images/rev.jpg" alt="Corridor" className="rounded-xl object-contain w-full h-56" />
+    <img src="/images/out.jpg" alt="Parking spot" className="rounded-xl object-contain w-full h-56" />
+	<img src="/images/kitch.jpg" alt="Kitchenette" className="rounded-xl object-contain w-full h-56" />
+    <img src="/images/shower.jpg" alt="Shower" className="rounded-xl object-contain w-full h-56" />
+    <img src="/images/pondrev.jpg" alt="Garden" className="rounded-xl object-contain w-full h-56" />
+    <img src="/images/pondfront.jpg" alt="Limestone formation" className="rounded-xl object-contain w-full h-56" />
+
+  </div>
         {/* Price + Contact Button */}
         <div className="flex flex-col sm:flex-row justify-between items-center bg-white rounded-2xl shadow-md px-6 py-4">
           <div className="text-gray-800 text-lg font-semibold">$120 NZD / night</div>
