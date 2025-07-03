@@ -15,11 +15,7 @@ function App() {
           alt="Limestone Studio"
           className="w-full object-contain rounded-2xl shadow-lg"
         />
-        <img
-          src="/images/limestonePond.jpg" // Rename converted image here
-          alt="Limestone Studio Garden"
-          className="w-full object-contain rounded-2xl shadow-lg"
-        />
+
 		{/* Gallery Section */}
 <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
   <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
@@ -27,7 +23,6 @@ function App() {
     <img src="/images/bed.jpg" alt="Bed" className="rounded-xl object-contain w-full h-56" />
     <img src="/images/loo.jpg" alt="Toilet" className="rounded-xl object-contain w-full h-56" />
     <img src="/images/dinner.jpg" alt="Dining" className="rounded-xl object-contain w-full h-56" />
-    <img src="/images/limestone.jpg" alt="Limestone formation" className="rounded-xl object-contain w-full h-56" />
     <img src="/images/door.jpg" alt="Front door" className="rounded-xl object-contain w-full h-56" />
     <img src="/images/hall.jpg" alt="Corridor" className="rounded-xl object-contain w-full h-56" />
     <img src="/images/rev.jpg" alt="Corridor" className="rounded-xl object-contain w-full h-56" />
