@@ -64,7 +64,7 @@ function App() {
         {/* Contact Form */}
         <form
           id="contact"
-          action="https://formspree.io/f/moqgnzrp"
+          action="https://formspree.io/f/mpwrnlnn"
           method="POST"
           className="bg-white rounded-2xl shadow-md p-6 space-y-4"
         >
