@@ -65,7 +65,8 @@ function App() {
   </div>
         {/* Price + Contact Button */}
         <div className="flex flex-col sm:flex-row justify-between items-center bg-white rounded-2xl shadow-md px-6 py-4">
-          <div className="text-gray-800 text-lg font-semibold">$120 NZD / night</div>
+           <div className="text-gray-800 text-lg font-semibold">Range depending on guests and whether weekday or weekend $120 - $180 NZD / night</div>
+         
           <a
             href="#contact"
             className="mt-3 sm:mt-0 inline-block bg-blue-600 text-white px-5 py-2 rounded-xl text-sm hover:bg-blue-700 transition"
