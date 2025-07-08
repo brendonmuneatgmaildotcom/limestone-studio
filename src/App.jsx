@@ -91,37 +91,45 @@ function App() {
           </a>
         </div>
 
-        {/* Booking Section */}
-        <div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
-          <h2 className="text-2xl font-semibold">Book Your Stay</h2>
+{/* Booking Section */}
+<div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
+  <h2 className="text-2xl font-semibold">Book Your Stay</h2>
 
-          <DateRange
-            editableDateInputs={true}
-            onChange={(item) => setBookingDetails({ ...bookingDetails, dates: [item.selection] })}
-            moveRangeOnFirstSelection={false}
-            ranges={bookingDetails.dates}
-            minDate={new Date()}
-          />
+  <DateRange
+    editableDateInputs={true}
+    onChange={(item) => setBookingDetails({ ...bookingDetails, dates: [item.selection] })}
+    moveRangeOnFirstSelection={false}
+    ranges={bookingDetails.dates}
+    minDate={new Date()}
+  />
 
-          <p className="text-sm text-gray-600">
-            Booking from <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong> to{" "}
-            <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
-          </p>
-          <p className="text-sm text-gray-600">
-            Total nights: <strong>
-              {Math.max(
-                1,
-                Math.ceil(
-                  (bookingDetails.dates[0].endDate - bookingDetails.dates[0].startDate) / (1000 * 60 * 60 * 24)
-                )
-              )}
-            </strong>
-          </p>
+  <p className="text-sm text-gray-600">
+    Booking from <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong> to{" "}
+    <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
+  </p>
 
-          <button onClick={handleBooking} className="bg-blue-600 text-white px-6 py-3 rounded">
-            Book Now
-          </button>
-        </div>
+  {(() => {
+    const start = bookingDetails.dates[0]?.startDate;
+    const end = bookingDetails.dates[0]?.endDate;
+    if (!start || !end) return null;
+
+    const nights = Math.max(
+      1,
+      Math.ceil((end - start) / (1000 * 60 * 60 * 24))
+    );
+
+    return (
+      <p className="text-sm text-gray-600">
+        Total nights: <strong>{nights}</strong>
+      </p>
+    );
+  })()}
+
+  <button onClick={handleBooking} className="bg-blue-600 text-white px-6 py-3 rounded">
+    Book Now
+  </button>
+</div>
+
 
         {/* Contact Form */}
         <form
