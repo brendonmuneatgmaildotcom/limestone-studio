@@ -7,6 +7,13 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./index.css";
 
+const handleBooking = async () => {
+  const res = await fetch('/api/checkout', {
+    method: 'POST',
+  });
+  const data = await res.json();
+  window.location.href = data.url;
+};
 function App() {
   const [bookingDetails, setBookingDetails] = useState({
     name: "",
@@ -27,7 +34,7 @@ function App() {
     // You can also send bookingDetails to a backend or email here
 
     // Redirect to Stripe
-    window.location.href = "https://buy.stripe.com/test_5kQ9AU5mN8xX2Xg7NCb3q00";
+    window.location.href = "https://buy.stripe.com/5kQ9AU5mN8xX2Xg7NCb3q00";
 
     // Optionally show confirmation if not redirecting
     // setSubmitted(true);
@@ -171,6 +178,9 @@ function App() {
             >
               Book & Pay
             </button>
+			<button onClick={handleBooking} className="bg-blue-600 text-white px-6 py-3 rounded">
+              Book Now
+          </button>
           </form>
         ) : (
           <div className="mt-6 p-6 bg-green-50 border border-green-300 rounded-xl">
