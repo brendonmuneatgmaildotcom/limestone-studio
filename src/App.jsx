@@ -29,16 +29,7 @@ function App() {
 
   const [submitted, setSubmitted] = useState(false);
 
-  const handleBookingSubmit = (e) => {
-    e.preventDefault();
-    // You can also send bookingDetails to a backend or email here
-
-    // Redirect to Stripe
-    window.location.href = "https://buy.stripe.com/5kQ9AU5mN8xX2Xg7NCb3q00";
-
-    // Optionally show confirmation if not redirecting
-    // setSubmitted(true);
-  };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
@@ -172,12 +163,6 @@ function App() {
               </strong>
             </p>
 
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700"
-            >
-              Book & Pay
-            </button>
 			<button onClick={handleBooking} className="bg-blue-600 text-white px-6 py-3 rounded">
               Book Now
           </button>
