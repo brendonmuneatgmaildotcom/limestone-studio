@@ -1,9 +1,24 @@
+// Limestone Studio Airbnb-style Page
+
+import React, { useState } from "react";
 import { DateRange } from "react-date-range";
 import { addDays, format } from "date-fns";
-import React, { useState } from "react";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+import "./index.css";
+
+const handleBooking = async () => {
+  const res = await fetch('/api/checkout', {
+    method: 'POST',
+  });
+  const data = await res.json();
+  window.location.href = data.url;
+};
 
 function App() {
   const [bookingDetails, setBookingDetails] = useState({
+    name: "",
+    email: "",
     dates: [
       {
         startDate: new Date(),
@@ -13,50 +28,137 @@ function App() {
     ],
   });
 
-  const handleBooking = async () => {
-    const res = await fetch("/api/checkout", { method: "POST" });
-    const data = await res.json();
-    window.location.href = data.url;
-  };
-
   return (
-    <div className="p-8 font-sans">
-      <div className="bg-white p-6 rounded-2xl shadow-lg max-w-2xl mx-auto">
-        <h2 className="text-2xl font-semibold mb-4">Book Your Stay</h2>
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Title */}
+        <h1 className="text-4xl font-bold text-center text-gray-800">Limestone Studio</h1>
 
-        <DateRange
-          editableDateInputs={true}
-          onChange={(item) => setBookingDetails({ dates: [item.selection] })}
-          moveRangeOnFirstSelection={false}
-          ranges={bookingDetails.dates}
-          minDate={new Date()}
+        {/* Image */}
+        <img
+          src="/images/limestone.jpg"
+          alt="Limestone Studio"
+          className="w-full object-contain rounded-2xl shadow-lg"
         />
 
-        <div className="mt-4 text-gray-600">
-          <p>
-            Booking from{" "}
-            <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong> to{" "}
+        {/* Location */}
+        <p className="text-sm text-center text-gray-600">
+          📍 Top of Hospital Rd, Whangarei, New Zealand
+        </p>
+
+        {/* Description */}
+        <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
+          <p className="mb-4">
+            Private studio with your own private waterfall garden and just a 5 minute walk to
+            Whangarei Hospital. Free park outside your front door and walk to the Hospital.
+          </p>
+          <p className="mb-4">
+            Elegant room with large screen TV and AppleTV box or plug your laptop in directly. Your own
+            toilet/shower ensuite. A kitchenette with microwave, fridge and utensils.
+          </p>
+          <p className="mb-4">
+            Your front door takes you through your own private corridor to your private studio. Out the
+            window you'll see the limestone waterfall garden which is yours to occupy with table and
+            chairs if you want to sip something nice in front of the limestone rock formations or even
+            dine there.
+          </p>
+          <p className="mb-4">
+            The property is at the end of a cul-de-sac so very quiet and peaceful. As your hosts,
+            Brendon and Delphine, our default is to give you the same privacy a hotel would. We're
+            absolutely available any time for any needs or requests but until you ask us we stay out of
+            your way from arrival to departure.
+          </p>
+        </div>
+
+        {/* Gallery */}
+        <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* image list remains unchanged */}
+          </div>
+        </div>
+
+        {/* Price + Book */}
+        <div className="flex flex-col sm:flex-row justify-between items-center bg-white rounded-2xl shadow-md px-6 py-4">
+          <div className="text-gray-800 text-lg font-semibold">
+            Range depending on guests and whether weekday or weekend: $120 - $180 NZD / night
+          </div>
+          <a
+            href="#contact"
+            className="mt-3 sm:mt-0 inline-block bg-blue-600 text-white px-5 py-2 rounded-xl text-sm hover:bg-blue-700 transition"
+          >
+            Contact Us
+          </a>
+        </div>
+
+        {/* Booking Section */}
+        <div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
+          <h2 className="text-2xl font-semibold">Book Your Stay</h2>
+
+          <DateRange
+            editableDateInputs={true}
+            onChange={(item) => setBookingDetails({ ...bookingDetails, dates: [item.selection] })}
+            moveRangeOnFirstSelection={false}
+            ranges={bookingDetails.dates}
+            minDate={new Date()}
+          />
+
+          <p className="text-sm text-gray-600">
+            Booking from <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong> to{" "}
             <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
           </p>
-          <p>
-            Total nights:{" "}
-            <strong>
+          <p className="text-sm text-gray-600">
+            Total nights: <strong>
               {Math.max(
                 1,
                 Math.ceil(
-                  (bookingDetails.dates[0].endDate - bookingDetails.dates[0].startDate) /
-                    (1000 * 60 * 60 * 24)
-                )}
-              </strong>
-            </p>
+                  (bookingDetails.dates[0].endDate - bookingDetails.dates[0].startDate) / (1000 * 60 * 60 * 24)
+                )
+              )}
+            </strong>
+          </p>
+
+          <button onClick={handleBooking} className="bg-blue-600 text-white px-6 py-3 rounded">
+            Book Now
+          </button>
         </div>
 
-        <button
-          onClick={handleBooking}
-          className="mt-6 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
+        {/* Contact Form */}
+        <form
+          id="contact"
+          action="https://formspree.io/f/mpwrnlnn"
+          method="POST"
+          className="bg-white rounded-2xl shadow-md p-6 space-y-4"
         >
-          Book Now
-        </button>
+          <h2 className="text-2xl font-bold text-gray-800">Send an Inquiry</h2>
+          <input
+            type="text"
+            name="name"
+            placeholder="Your Name"
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Your Email"
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+          <textarea
+            name="message"
+            placeholder="Your Message"
+            rows="4"
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          ></textarea>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-5 py-2 rounded-xl hover:bg-blue-700 transition"
+          >
+            Send Message
+          </button>
+        </form>
       </div>
     </div>
   );
