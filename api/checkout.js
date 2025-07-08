@@ -18,8 +18,8 @@ export default async function handler(req, res) {
         },
       ],
       mode: 'payment',
-      success_url: 'https://your-site.com/thank-you',
-      cancel_url: 'https://your-site.com/cancelled',
+      success_url: 'https://limestone-studio.vercel.app/thank-you',
+      cancel_url: 'https://limestone-studio.vercel.app/cancelled',
     });
 
     res.status(200).json({ url: session.url });
