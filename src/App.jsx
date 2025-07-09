@@ -74,7 +74,17 @@ function App() {
         <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* image list remains unchanged */}
+            <img src="/images/bed.jpg" alt="Bed" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/loo.jpg" alt="Toilet" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/dinner.jpg" alt="Dining" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/door.jpg" alt="Front door" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/hall.jpg" alt="Corridor" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/rev.jpg" alt="Corridor reverse" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/out.jpg" alt="Parking spot" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/kitch.jpg" alt="Kitchenette" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/shower.jpg" alt="Shower" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/pondrev.jpg" alt="Garden" className="rounded-xl object-cover w-full h-56" />
+            <img src="/images/pondfront.jpg" alt="Limestone formation" className="rounded-xl object-cover w-full h-56" />
           </div>
         </div>
 
@@ -168,6 +178,23 @@ function App() {
           </button>
         </form>
       </div>
+	   
+ 
+
+      {/* Stripe Feedback Messages */}
+      {window.location.pathname === "/thank-you" && (
+        <div className="mt-12 text-center">
+          <h2 className="text-3xl font-bold text-green-600">Payment Successful!</h2>
+          <p className="text-gray-700 mt-2">Thanks for your booking — we’ll be in touch shortly.</p>
+        </div>
+      )}
+
+      {window.location.pathname === "/cancelled" && (
+        <div className="mt-12 text-center">
+          <h2 className="text-3xl font-bold text-red-600">Booking Cancelled</h2>
+          <p className="text-gray-700 mt-2">No worries — you can return and book any time.</p>
+        </div>
+      )}
     </div>
   );
 }
