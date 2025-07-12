@@ -8,7 +8,6 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./index.css";
 
-
 function App() {
   const [bookingDetails, setBookingDetails] = useState({
     name: "",
@@ -24,10 +23,19 @@ function App() {
     window.location.href = data.url;
   };
 
-  const images = [
-    "bed","loo","dinner","door","hall","rev",
-    "out","kitch","shower","pondrev","pondfront"
-  ].map(name => `/images/${name}.jpg`);
+  const galleryMeta = [
+    { name: "bed",      width: 1600, height: 1200 },
+    { name: "pondrev",  width: 1600, height: 1200 },
+    { name: "dinner",   width: 1200, height: 1600 },
+    { name: "door",     width: 1200, height: 1600 },
+    { name: "loo",      width: 1200, height: 1600 },
+    { name: "hall",     width: 1200, height: 1600 },
+    { name: "rev",      width: 1200, height: 1600 },
+    { name: "kitch",    width: 1200, height: 1600 },
+    { name: "pondfront",width: 1600, height: 1200 },
+    { name: "out",      width: 1600, height: 1200 },
+    { name: "shower",   width: 1200, height: 1600 },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
@@ -53,7 +61,26 @@ function App() {
 
         {/* Description */}
         <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
-          {/* Add your description here */}
+          <p className="mb-4">
+            Private studio with your own private waterfall garden and just a 5 minute walk to
+            Whangarei Hospital. Free park outside your front door and walk to the Hospital.
+          </p>
+          <p className="mb-4">
+            Elegant room with large screen TV and AppleTV box or plug your laptop in directly. Your own
+            toilet/shower ensuite. A kitchenette with microwave, fridge and utensils.
+          </p>
+          <p className="mb-4">
+            Your front door takes you through your own private corridor to your private studio. Out the
+            window you'll see the limestone waterfall garden which is yours to occupy with table and
+            chairs if you want to sip something nice in front of the limestone rock formations or even
+            dine there.
+          </p>
+          <p className="mb-4">
+            The property is at the end of a cul-de-sac so very quiet and peaceful. As your hosts,
+            Brendon and Delphine, our default is to give you the same privacy a hotel would. We're
+            absolutely available any time for any needs or requests but until you ask us we stay out of
+            your way from arrival to departure.
+          </p>
         </div>
 
         {/* Gallery with PhotoSwipe */}
@@ -61,25 +88,28 @@ function App() {
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
           <Gallery>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {images.map((src, index) => (
-                <Item
-                  key={index}
-                  original={src}
-                  thumbnail={src}
-                  width="1600"
-                  height="1200"
-                >
-                  {({ ref, open }) => (
-                    <img
-                      ref={ref}
-                      onClick={open}
-                      src={src}
-                      alt={`Gallery ${index + 1}`}
-                      className="rounded-xl object-cover w-full h-72 cursor-pointer"
-                    />
-                  )}
-                </Item>
-              ))}
+              {galleryMeta.map((img, i) => {
+                const src = `/images/${img.name}.jpg`;
+                return (
+                  <Item
+                    key={i}
+                    original={src}
+                    thumbnail={src}
+                    width={img.width}
+                    height={img.height}
+                  >
+                    {({ ref, open }) => (
+                      <img
+                        ref={ref}
+                        onClick={open}
+                        src={src}
+                        alt={img.name}
+                        className="rounded-xl object-contain w-full h-auto cursor-pointer"
+                      />
+                    )}
+                  </Item>
+                );
+              })}
             </div>
           </Gallery>
         </div>
@@ -92,7 +122,7 @@ function App() {
             moveRangeOnFirstSelection={false}
             ranges={bookingDetails.dates}
             minDate={new Date()}
-            onChange={item =>
+            onChange={(item) =>
               setBookingDetails({ ...bookingDetails, dates: [item.selection] })
             }
           />
