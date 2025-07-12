@@ -46,7 +46,7 @@ function App() {
     <div className="min-h-screen bg-yellow-100 flex flex-col sm:flex-row justify-center">
       {/* Top banner (mobile) / Left banner (desktop) */}
       <div
-        className="w-full h-16 sm:w-16 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-top sm:bg-left bg-contain"
+        className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-top sm:bg-left bg-contain"
         style={{
           backgroundImage: "url('/images/sidebanner.jpg')",
         }}
@@ -79,12 +79,12 @@ function App() {
             <p className="mb-4">
               Private studio with your own private waterfall garden and just a
               few minutes walk to Whangarei Hospital so you can free-park outside your front
-              door and walk to the Hospital.
+              door and walk to the Hospital
             </p>
             <p className="mb-4">
               Elegant room with large screen TV and AppleTV box or plug your
               laptop in directly. Your own toilet/shower ensuite. A kitchenette
-              with microwave, fridge and utensils.
+              with microwave, fridge and utensils
             </p>
             <p className="mb-4">
               Your front door takes you through your own private corridor to
@@ -93,11 +93,17 @@ function App() {
             </p>
             <p className="mb-4">
               The property is at the end of a cul-de-sac so very quiet and
-              peaceful.
+              peaceful
             </p>
             <p className="mb-4">
-              Check in any time after 2pm, checkout is 11am but if there is no booking the 
-              day of your checkout, on request you can extend checkout to midday.
+              Check in any time after 2pm, checkout any time before 11am 
+            </p>
+			<p className="mb-4">
+              Check in process: Call or text on arrival and we'll show you in 
+			  </p>
+			<p className="mb-4"> Check out process: Just leave the key on the table and drive away
+			 </p>
+			<p className="mb-4">  If you prefer contactless privacy from arrival to departure just let us know and we'll send you details
             </p>
           </div>
 
@@ -206,9 +212,9 @@ function App() {
 
       {/* Bottom banner (mobile) / Right banner (desktop) */}
       <div
-        className="w-full h-16 sm:w-16 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain"
+        className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain"
         style={{
-          backgroundImage: "url('/images/sidebanner.jpg')",
+          backgroundImage: "url('/images/rightbanner.jpg')",
         }}
       ></div>
     </div>
