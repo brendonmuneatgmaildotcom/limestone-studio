@@ -43,10 +43,10 @@ function App() {
   ];
 
   return (
-  <div className="min-h-screen bg-yellow-100 flex justify-center">
-      {/* Side Banner */}
+    <div className="min-h-screen bg-yellow-100 flex flex-col sm:flex-row justify-center">
+      {/* Top banner (mobile) / Left banner (desktop) */}
       <div
-        className="w-16 bg-repeat-y bg-left bg-contain"
+        className="w-full h-16 sm:w-16 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-top sm:bg-left bg-contain"
         style={{
           backgroundImage: "url('/images/sidebanner.jpg')",
         }}
@@ -97,7 +97,7 @@ function App() {
             </p>
             <p className="mb-4">
               Check in any time after 2pm, checkout is 11am but if there is no booking the 
-			  day of your checkout, on request you can extend checkout to midday.
+              day of your checkout, on request you can extend checkout to midday.
             </p>
           </div>
 
@@ -203,13 +203,14 @@ function App() {
           </form>
         </div>
       </div>
-	    {/* Right banner */}
-  <div
-    className="w-16 bg-repeat-y bg-right bg-contain"
-    style={{
-      backgroundImage: "url('/images/sidebanner.jpg')",
-    }}
-  ></div>
+
+      {/* Bottom banner (mobile) / Right banner (desktop) */}
+      <div
+        className="w-full h-16 sm:w-16 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain"
+        style={{
+          backgroundImage: "url('/images/sidebanner.jpg')",
+        }}
+      ></div>
     </div>
   );
 }
