@@ -35,6 +35,7 @@ function App() {
     { name: "pondfront",width: 1600, height: 1200 },
     { name: "out",      width: 1600, height: 1200 },
     { name: "shower",   width: 1200, height: 1600 },
+    { name: "drive",    width: 1200, height: 1600 },	
   ];
 
   return (
@@ -77,9 +78,7 @@ function App() {
           </p>
           <p className="mb-4">
             The property is at the end of a cul-de-sac so very quiet and peaceful. As your hosts,
-            Brendon and Delphine, our default is to give you the same privacy a hotel would. We're
-            absolutely available any time for any needs or requests but until you ask us we stay out of
-            your way from arrival to departure.
+            Brendon and Delphine, we look forward to hosting you.
           </p>
         </div>
 
