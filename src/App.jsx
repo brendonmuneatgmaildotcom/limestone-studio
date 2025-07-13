@@ -95,18 +95,27 @@ function App() {
               The property is at the end of a cul-de-sac so very quiet and
               peaceful
             </p>
+          </div>
+          <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
             <p className="mb-4">
               Check in any time after 2pm, checkout any time before 11am 
             </p>
 			<p className="mb-4">
               Check in process: Call or text on arrival and we'll show you in 
 			  </p>
-			<p className="mb-4"> Check out process: Just leave the key on the table and drive away
+			<p className="mb-4"> Check out process: Call or text on departure, we'll collect the key
 			 </p>
-			<p className="mb-4">  If you prefer contactless privacy from arrival to departure just let us know and we'll send you details
+			<p className="mb-4">  If you prefer contactless privacy from arrival to departure just let us know and we'll send you instructions
             </p>
           </div>
-
+        <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
+            <p className="mb-4 font-bold">
+              Amenities 
+            </p>
+            <p className="mb-4">
+              Toiletries, Milk, Hairdryer 			  
+            </p>
+	     </div>
           {/* Gallery */}
           <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
