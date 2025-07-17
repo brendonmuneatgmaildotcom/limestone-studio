@@ -31,9 +31,14 @@ function App() {
   const [adminBookings, setAdminBookings] = useState([]);
   const [showAdmin, setShowAdmin] = useState(false);
 
-  const isDateBooked = (date) => {
-    return bookedDates.some(({ start, end }) => date >= start && date <= end);
-  };
+ const isDateBooked = (date) => {
+  const d = new Date(date.setHours(0, 0, 0, 0));
+  return bookedDates.some(({ start, end }) => {
+    const s = new Date(start.setHours(0, 0, 0, 0));
+    const e = new Date(end.setHours(0, 0, 0, 0));
+    return d >= s && d <= e;
+  });
+};
 
   const handleBooking = async () => {
     const newBooking = bookingDetails.dates[0];
