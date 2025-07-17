@@ -6,7 +6,7 @@ export async function GET() {
   return new Response(text, {
     headers: {
       "Content-Type": "text/calendar",
-      "Cache-Control": "max-age=0, s-maxage=3600",
+      "Cache-Control": "max-age=0, s-maxage=60",
     },
   });
 }
