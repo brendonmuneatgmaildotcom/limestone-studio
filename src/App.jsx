@@ -325,7 +325,8 @@ function App() {
       </div>
       <div className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain" style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}></div>
     </div>
+    </>
   );
 }
 
-export default App;
+export default App; 
