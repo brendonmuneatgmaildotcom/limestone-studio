@@ -9,6 +9,8 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./index.css";
 import { createClient } from "@supabase/supabase-js";
+import { Helmet } from "react-helmet";
+
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -139,7 +141,15 @@ function App() {
     { name: "drive", width: 1200, height: 1600 },
   ];
 
-  return (
+  return (    
+    <>
+      <Helmet>
+        <title>Limestone Studio — Private Waterfall Garden accommodation in Whangārei</title>
+        <meta
+          name="description"
+          content="Relax in your own private studio accommodation with a peaceful limestone garden and waterfall, just a 5 minute walk from Whangārei Hospital.."
+        />
+      </Helmet>
     <div className="min-h-screen bg-yellow-100 flex flex-col sm:flex-row justify-center">
       <div className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-top sm:bg-left bg-contain" style={{ backgroundImage: "url('/images/sidebanner.jpg')" }}></div>
       <div className="flex-1 max-w-7xl p-4 sm:p-6">
