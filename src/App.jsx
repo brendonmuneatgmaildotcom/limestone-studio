@@ -248,7 +248,7 @@ function App() {
               Booking from <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong> to <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
             </p>
             <button onClick={handleBooking} className="bg-blue-600 text-white px-6 py-3 rounded">
-              Book Now (still under construction - call 028 8521 8637)
+              Book Now (under construction - call 028 8521 8637)
             </button>
           </div>
 
