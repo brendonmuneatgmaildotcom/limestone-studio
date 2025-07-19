@@ -187,7 +187,7 @@ function App() {
 
           <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
             <p className="mb-4 font-bold">Amenities</p>
-            <p className="mb-4">Toiletries, Milk, Hairdryer</p>
+            <p className="mb-4">Toiletries, Milk, Hairdryer, Free Wifi, Free Parking, Microwave, Fridge, USB charging, Tea/Coffee, Cutlery, Dishes, Dining table, Writing desk, Large Screen TV with AppleTV shows and movies, Garden, Waterfall, Bush views</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
