@@ -32,8 +32,6 @@ function App() {
   const [bookedDates, setBookedDates] = useState([]);
   const [adminBookings, setAdminBookings] = useState([]);
   const [showAdmin, setShowAdmin] = useState(false);
-  const [adminError, setAdminError] = useState("");
-
 
  const isDateBooked = (date) => {
   const d = new Date(date.setHours(0, 0, 0, 0));
@@ -77,28 +75,6 @@ function App() {
       setAdminBookings(data);
     }
   };
-
-  
-  const handleAdminClick = async () => {
-    const input = prompt("Enter admin password:");
-    if (!input) return;
-
-    const { data, error } = await supabase
-      .from("admin_keys")
-      .select("*")
-      .eq("secret", input);
-
-    if (error) {
-      console.error("Supabase query error:", error);
-      setAdminError("Error checking credentials.");
-    } else if (data.length > 0) {
-      setShowAdmin(true);
-      setAdminError("");
-    } else {
-      setAdminError("Incorrect password.");
-    }
-  };
-
 
   const deleteBooking = async (id) => {
     const { error } = await supabase.from("bookings").delete().eq("id", id);
@@ -313,7 +289,7 @@ function App() {
           </form>
 
           <div className="mt-6">
-            <button onClick={handleAdminClick} className="bg-black text-white px-4 py-2 rounded">
+            <button onClick={() => setShowAdmin(!showAdmin)} className="bg-black text-white px-4 py-2 rounded">
               {showAdmin ? "Hide Admin" : "Show Admin"}
             </button>
           </div>
