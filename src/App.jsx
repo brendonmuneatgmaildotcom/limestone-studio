@@ -78,27 +78,31 @@ function App() {
     }
   };
 
-  
-  const handleAdminClick = async () => {
-    const input = prompt("Enter admin password:");
-    if (!input) return;
+const handleAdminClick = async () => {
+  if (showAdmin) {
+    // If admin section is already shown, just hide it without password
+    setShowAdmin(false);
+    return;
+  }
 
-    const { data, error } = await supabase
-      .from("admin_keys")
-      .select("*")
-      .eq("secret", input);
+  const input = prompt("Enter admin password:");
+  if (!input) return;
 
-    if (error) {
-      console.error("Supabase query error:", error);
-      setAdminError("Error checking credentials.");
-    } else if (data.length > 0) {
-      setShowAdmin(true);
-      setAdminError("");
-    } else {
-      setAdminError("Incorrect password.");
-    }
-  };
+  const { data, error } = await supabase
+    .from("admin_keys")
+    .select("*")
+    .eq("secret", input);
 
+  if (error) {
+    console.error("Supabase query error:", error);
+    setAdminError("Error checking credentials.");
+  } else if (data.length > 0) {
+    setShowAdmin(true);
+    setAdminError("");
+  } else {
+    setAdminError("Incorrect password.");
+  }
+};
 
   const deleteBooking = async (id) => {
     const { error } = await supabase.from("bookings").delete().eq("id", id);
@@ -313,10 +317,14 @@ function App() {
           </form>
 
           <div className="mt-6">
-            <button onClick={handleAdminClick} className="bg-black text-white px-4 py-2 rounded">
-              {showAdmin ? "Hide Admin" : "Show Admin"}
-            </button>
-          </div>
+  <button onClick={handleAdminClick} className="bg-black text-white px-4 py-2 rounded">
+    {showAdmin ? "Hide Admin" : "Show Admin"}
+  </button>
+  {adminError && (
+    <p className="text-red-600 mt-2 text-sm">{adminError}</p>
+  )}
+</div>
+
 
 
           {showAdmin && (
