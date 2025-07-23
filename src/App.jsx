@@ -69,14 +69,20 @@ function App() {
     }
   };
 
-  const fetchAdminBookings = async () => {
-    const { data, error } = await supabase.from("bookings").select("*");
-    if (error) {
-      console.error("Failed to fetch admin bookings:", error);
-    } else {
+const fetchAdminBookings = async () => {
+  try {
+    const res = await fetch("/api/fetch-bookings");
+    const data = await res.json();
+
+    if (res.ok) {
       setAdminBookings(data);
+    } else {
+      console.error("Failed to fetch admin bookings:", data.error);
     }
-  };
+  } catch (err) {
+    console.error("Network or server error:", err);
+  }
+};
 
 const handleAdminClick = async () => {
   if (showAdmin) {
