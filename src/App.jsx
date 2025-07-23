@@ -144,7 +144,7 @@ const handleAdminClick = async () => {
             const parse = (s) => new Date(`${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`);
             return {
               start: parse(startMatch[1]),
-              end: addDays(parse(endMatch[1]-1)),
+              end: addDays(parse(endMatch[1])),
               source: "ical",
             };
           })
