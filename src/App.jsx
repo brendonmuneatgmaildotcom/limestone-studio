@@ -44,30 +44,33 @@ function App() {
   });
 };
 
-  const handleBooking = async () => {
-    const newBooking = bookingDetails.dates[0];
+const handleBooking = async () => {
+  const newBooking = bookingDetails.dates[0];
 
-    const { data, error } = await supabase.from("bookings").insert([
-      {
-        name: bookingDetails.name,
-        email: bookingDetails.email,
+  const insertData = {
+    name: bookingDetails.name,
+    email: bookingDetails.email,
     start_date: newBooking.startDate.toISOString().split("T")[0],
     end_date: newBooking.endDate.toISOString().split("T")[0],
-      },
-    ]);
-
-    if (!error) {
-      setBookedDates([
-        ...bookedDates,
-        { start: newBooking.startDate, end: newBooking.endDate },
-      ]);
-      const res = await fetch("/api/checkout", { method: "POST" });
-      const data = await res.json();
-      window.location.href = data.url;
-    } else {
-      console.error("Booking failed", error);
-    }
   };
+
+  console.log("Inserting booking:", insertData);
+
+  const { data, error } = await supabase.from("bookings").insert([insertData]);
+
+  console.log("Insert result:", { data, error });
+
+  if (error) {
+    alert("Booking failed: " + error.message);
+  } else {
+    alert("Booking saved!");
+    setBookedDates([
+      ...bookedDates,
+      { start: newBooking.startDate, end: newBooking.endDate },
+    ]);
+  }
+};
+
 
 const fetchAdminBookings = async () => {
   try {
