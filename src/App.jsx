@@ -124,49 +124,59 @@ const handleAdminClick = async () => {
   };
 
   useEffect(() => {
-    const loadDates = async () => {
-      const supabaseBookings = await supabase.from("bookings").select("id, start_date, end_date");
-	      console.log("Supabase response:", supabaseBookings);
-      let supabaseDates = [];
-      if (supabaseBookings.data) {
-supabaseDates = supabaseBookings.data.map((b) => {
-  const start = new Date(b.start_date);
-  const end = new Date(b.end_date);
-  console.log("Parsed booking:", { id: b.id, start, end });
-  return {
-    id: b.id,
-    start,
-    end,
-    source: "supabase",
+  const loadDates = async () => {
+    const supabaseBookings = await supabase
+      .from("bookings")
+      .select("id, start_date, end_date");
+
+    console.log("Supabase response:", supabaseBookings);
+
+    let supabaseDates = [];
+    if (supabaseBookings.data) {
+      supabaseDates = supabaseBookings.data.map((b) => {
+        const start = new Date(b.start_date);   // start_date is a DATE in PG, comes back as 'YYYY-MM-DD'
+        const end = new Date(b.end_date);
+        console.log("Parsed booking:", { id: b.id, start, end });
+        return {
+          id: b.id,
+          start,
+          end,
+          source: "supabase",
+        };
+      });
+    }
+
+    try {
+      const res = await fetch("/api/bookingcom");
+      const text = await res.text();
+      const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
+        .map((entry) => {
+          const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
+          const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
+          if (!startMatch || !endMatch) return null;
+          const parse = (s) =>
+            new Date(
+              `${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`
+            );
+          return {
+            start: parse(startMatch[1]),
+            end: addDays(parse(endMatch[1]), 1), // <-- IMPORTANT: addDays(date, 1)
+            source: "ical",
+          };
+        })
+        .filter(Boolean);
+
+      console.log("Final bookedDates:", [...supabaseDates, ...events]);
+      setBookedDates([...supabaseDates, ...events]);
+    } catch (err) {
+      console.error("Failed to import Booking.com iCal:", err);
+      setBookedDates([...supabaseDates]);
+    }
   };
-});
 
-      try {
-        const res = await fetch("/api/bookingcom");
-        const text = await res.text();
-        const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
-          .map((entry) => {
-            const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
-            const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
-            if (!startMatch || !endMatch) return null;
-            const parse = (s) => new Date(`${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`);
-            return {
-              start: parse(startMatch[1]),
-              end: addDays(parse(endMatch[1])),
-              source: "ical",
-            };
-          })
-          .filter(Boolean);
+  loadDates();
+}, []);
 
-        setBookedDates([...supabaseDates, ...events]);
-      } catch (err) {
-        console.error("Failed to import Booking.com iCal:", err);
-        setBookedDates([...supabaseDates]);
-      }
-    };
-
-    loadDates();
-  }, []);
 
   const galleryMeta = [
     { name: "bed", width: 1600, height: 1200 },
