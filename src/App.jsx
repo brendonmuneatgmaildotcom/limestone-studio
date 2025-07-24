@@ -51,8 +51,8 @@ function App() {
       {
         name: bookingDetails.name,
         email: bookingDetails.email,
-        start_date: newBooking.startDate.toISOString(),
-        end_date: newBooking.endDate.toISOString(),
+    start_date: newBooking.startDate.toISOString().split("T")[0],
+    end_date: newBooking.endDate.toISOString().split("T")[0],
       },
     ]);
 
