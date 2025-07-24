@@ -126,15 +126,20 @@ const handleAdminClick = async () => {
   useEffect(() => {
     const loadDates = async () => {
       const supabaseBookings = await supabase.from("bookings").select("id, start_date, end_date");
+	      console.log("Supabase response:", supabaseBookings);
       let supabaseDates = [];
       if (supabaseBookings.data) {
-        supabaseDates = supabaseBookings.data.map((b) => ({
-          id: b.id,
-          start: new Date(b.start_date),
-          end: new Date(b.end_date),
-          source: "supabase",
-        }));
-      }
+supabaseDates = supabaseBookings.data.map((b) => {
+  const start = new Date(b.start_date);
+  const end = new Date(b.end_date);
+  console.log("Parsed booking:", { id: b.id, start, end });
+  return {
+    id: b.id,
+    start,
+    end,
+    source: "supabase",
+  };
+});
 
       try {
         const res = await fetch("/api/bookingcom");
