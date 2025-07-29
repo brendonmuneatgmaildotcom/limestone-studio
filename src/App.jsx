@@ -169,49 +169,7 @@ function App() {
     loadDates();
   }, []);
 
-  const handleBooking = async () => {
-    const newBooking = bookingDetails.dates[0];
-    const newEntry = {
-      id: Date.now(),
-      name: bookingDetails.name,
-      email: bookingDetails.email,
-      start_date: newBooking.startDate.toISOString().split("T")[0],
-      end_date: newBooking.endDate.toISOString().split("T")[0],
-    };
-
-    try {
-      const res = await fetch("/api/add-booking", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newEntry),
-      });
-
-      if (res.ok) {
-        setBookedDates([...bookedDates, { ...newEntry, start: new Date(newEntry.start_date), end: new Date(newEntry.end_date) }]);
-        alert("Booking saved!");
-      } else {
-        const err = await res.json();
-        alert("Failed: " + err.message);
-      }
-    } catch (err) {
-      console.error("Booking failed:", err);
-      alert("Booking failed: " + err.message);
-    }
-  };
-
-  const isDateBooked = (date) => {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    return bookedDates.some(({ start, end }) => {
-      const s = new Date(start);
-      s.setHours(0, 0, 0, 0);
-      const e = new Date(end);
-      e.setHours(0, 0, 0, 0);
-      return d >= s && d <= e;
-    });
-  };
+ 
 
   const galleryMeta = [
     { name: "bed", width: 1600, height: 1200 },
