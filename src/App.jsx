@@ -8,13 +8,7 @@ import { addDays, format } from "date-fns";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./index.css";
-import { createClient } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet";
-
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 function App() {
   const [bookingDetails, setBookingDetails] = useState({
@@ -34,154 +28,68 @@ function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminError, setAdminError] = useState("");
 
-
-const isDateBooked = (date) => {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-
-  return bookedDates.some(({ start, end }) => {
-    const s = new Date(start);
-    s.setHours(0, 0, 0, 0);
-    const e = new Date(end);
-    e.setHours(0, 0, 0, 0);
-    return d >= s && d <= e;
-  });
-};
-
-
-const handleBooking = async () => {
-  const newBooking = bookingDetails.dates[0];
-
-  const insertData = {
-    name: bookingDetails.name,
-    email: bookingDetails.email,
-    start_date: newBooking.startDate.toISOString().split("T")[0],
-    end_date: newBooking.endDate.toISOString().split("T")[0],
-  };
-
-  console.log("Inserting booking:", insertData);
-
-  const { data, error } = await supabase.from("bookings").insert([insertData]);
-
-  console.log("Insert result:", { data, error });
-
-  if (error) {
-    alert("Booking failed: " + error.message);
-  } else {
-    alert("Booking saved!");
-    setBookedDates([
-      ...bookedDates,
-      { start: newBooking.startDate, end: newBooking.endDate },
-    ]);
-  }
-};
-
-
-const fetchAdminBookings = async () => {
-  try {
-    const res = await fetch("/api/fetch-bookings");
-    const data = await res.json();
-
-    if (res.ok) {
-      setAdminBookings(data);
-    } else {
-      console.error("Failed to fetch admin bookings:", data.error);
-    }
-  } catch (err) {
-    console.error("Network or server error:", err);
-  }
-};
-
-const handleAdminClick = async () => {
-  if (showAdmin) {
-    // If admin section is already shown, just hide it without password
-    setShowAdmin(false);
-    return;
-  }
-
-  const input = prompt("Enter admin password:");
-  if (!input) return;
-
-  const { data, error } = await supabase
-    .from("admin_keys")
-    .select("*")
-    .eq("secret", input);
-
-  if (error) {
-    console.error("Supabase query error:", error);
-    setAdminError("Error checking credentials.");
-  } else if (data.length > 0) {
-    setShowAdmin(true);
-    setAdminError("");
-  } else {
-    setAdminError("Incorrect password.");
-  }
-};
-
-  const deleteBooking = async (id) => {
-    const { error } = await supabase.from("bookings").delete().eq("id", id);
-    if (!error) {
-      setAdminBookings((prev) => prev.filter((b) => b.id !== id));
-      setBookedDates((prev) => prev.filter((b) => b.source !== "supabase" || b.id !== id));
-    } else {
-      console.error("Delete failed", error);
-    }
-  };
-
   useEffect(() => {
-  const loadDates = async () => {
-    const supabaseBookings = await supabase
-      .from("bookings")
-      .select("id, start_date, end_date");
-
-    console.log("Supabase response:", supabaseBookings);
-
-    let supabaseDates = [];
-    if (supabaseBookings.data) {
-      supabaseDates = supabaseBookings.data.map((b) => {
-        const start = new Date(b.start_date);   // start_date is a DATE in PG, comes back as 'YYYY-MM-DD'
-        const end = new Date(b.end_date);
-        console.log("Parsed booking:", { id: b.id, start, end });
-        return {
+    const loadDates = async () => {
+      try {
+        const res = await fetch("/data/bookings.json");
+        const data = await res.json();
+        const formatted = data.map((b) => ({
           id: b.id,
-          start,
-          end,
-          source: "supabase",
-        };
-      });
-    }
+          start: new Date(b.start_date),
+          end: new Date(b.end_date),
+          source: "flatfile",
+        }));
+        setBookedDates(formatted);
+      } catch (err) {
+        console.error("Failed to load bookings.json", err);
+      }
+    };
+    loadDates();
+  }, []);
+
+  const handleBooking = async () => {
+    const newBooking = bookingDetails.dates[0];
+    const newEntry = {
+      id: Date.now(),
+      name: bookingDetails.name,
+      email: bookingDetails.email,
+      start_date: newBooking.startDate.toISOString().split("T")[0],
+      end_date: newBooking.endDate.toISOString().split("T")[0],
+    };
 
     try {
-      const res = await fetch("/api/bookingcom");
-      const text = await res.text();
-      const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
-        .map((entry) => {
-          const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
-          const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
-          if (!startMatch || !endMatch) return null;
-          const parse = (s) =>
-            new Date(
-              `${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`
-            );
-          return {
-            start: parse(startMatch[1]),
-            end: addDays(parse(endMatch[1]), 1), // <-- IMPORTANT: addDays(date, 1)
-            source: "ical",
-          };
-        })
-        .filter(Boolean);
+      const res = await fetch("/api/add-booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newEntry),
+      });
 
-      console.log("Final bookedDates:", [...supabaseDates, ...events]);
-      setBookedDates([...supabaseDates, ...events]);
+      if (res.ok) {
+        setBookedDates([...bookedDates, { ...newEntry, start: new Date(newEntry.start_date), end: new Date(newEntry.end_date) }]);
+        alert("Booking saved!");
+      } else {
+        const err = await res.json();
+        alert("Failed: " + err.message);
+      }
     } catch (err) {
-      console.error("Failed to import Booking.com iCal:", err);
-      setBookedDates([...supabaseDates]);
+      console.error("Booking failed:", err);
+      alert("Booking failed: " + err.message);
     }
   };
 
-  loadDates();
-}, []);
-
+  const isDateBooked = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return bookedDates.some(({ start, end }) => {
+      const s = new Date(start);
+      s.setHours(0, 0, 0, 0);
+      const e = new Date(end);
+      e.setHours(0, 0, 0, 0);
+      return d >= s && d <= e;
+    });
+  };
 
   const galleryMeta = [
     { name: "bed", width: 1600, height: 1200 },
@@ -345,16 +253,7 @@ const handleAdminClick = async () => {
             </button>
           </form>
 
-          <div className="mt-6">
-  <button onClick={handleAdminClick} className="bg-black text-white px-4 py-2 rounded">
-    {showAdmin ? "Hide Admin" : "Show Admin"}
-  </button>
-  {adminError && (
-    <p className="text-red-600 mt-2 text-sm">{adminError}</p>
-  )}
-</div>
-
-
+ 
 
           {showAdmin && (
             <div className="mt-6 bg-white p-6 rounded-xl shadow-md">
