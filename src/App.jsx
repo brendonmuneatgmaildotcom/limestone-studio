@@ -52,9 +52,8 @@ function App() {
     const insertData = {
       name: bookingDetails.name,
       email: bookingDetails.email,
-start_date: format(newBooking.startDate, "yyyy-MM-dd"),
-end_date: format(newBooking.endDate, "yyyy-MM-dd"),
-
+      start_date: newBooking.startDate.toISOString().split("T")[0],
+      end_date: newBooking.endDate.toISOString().split("T")[0],
     };
 
     const { data, error } = await supabase.from("bookings").insert([insertData]);
@@ -169,7 +168,6 @@ end_date: format(newBooking.endDate, "yyyy-MM-dd"),
 
     loadDates();
   }, []);
-
 
 
 
