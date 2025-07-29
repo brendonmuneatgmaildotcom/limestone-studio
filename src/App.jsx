@@ -32,6 +32,15 @@ function App() {
   const [adminBookings, setAdminBookings] = useState([]);
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminError, setAdminError] = useState("");
+  
+  
+  
+const fetchDirectBookings = async () => {
+  const { data, error } = await supabase.from("bookings").select("*");
+  console.log("TEST: direct fetch", { data, error });
+};
+
+
 
   const isDateBooked = (date) => {
     const d = new Date(date);
@@ -118,26 +127,28 @@ function App() {
       console.error("Delete failed", error);
     }
   };
+useEffect(() => {
+  fetchDirectBookings();
+}, []);
+  //useEffect(() => {
+ //   const loadDates = async () => {
+ //     const supabaseBookings = await supabase
+  //      .from("bookings")
+  //      .select("id, start_date, end_date");
 
-  useEffect(() => {
-    const loadDates = async () => {
-      const supabaseBookings = await supabase
-        .from("bookings")
-        .select("id, start_date, end_date");
-
-      let supabaseDates = [];
-      if (supabaseBookings.data) {
-        supabaseDates = supabaseBookings.data.map((b) => {
-          const start = new Date(b.start_date);
-          const end = new Date(b.end_date);
-          return {
-            id: b.id,
-            start,
-            end,
-            source: "supabase",
-          };
-        });
-      }
+  //    let supabaseDates = [];
+  //    if (supabaseBookings.data) {
+  //      supabaseDates = supabaseBookings.data.map((b) => {
+  //        const start = new Date(b.start_date);
+  //        const end = new Date(b.end_date);
+   //       return {
+   //         id: b.id,
+   //         start,
+  //          end,
+   //         source: "supabase",
+ //         };
+ //       });
+ //     }
 
       try {
         const res = await fetch("/api/bookingcom");
