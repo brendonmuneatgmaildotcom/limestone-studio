@@ -129,22 +129,18 @@ const fetchDirectBookings = async () => {
   };
 useEffect(() => {
   const loadDates = async () => {
+    const supabaseBookings = await supabase
+      .from("bookings")
+      .select("id, start_date, end_date");
+
     let supabaseDates = [];
-
-    try {
-      const res = await fetch("/api/fetch-bookings");
-      const data = await res.json();
-
-      if (Array.isArray(data)) {
-        supabaseDates = data.map((b) => ({
-          id: b.id,
-          start: new Date(b.start_date),
-          end: new Date(b.end_date),
-          source: "supabase",
-        }));
-      }
-    } catch (err) {
-      console.error("Backend booking fetch failed:", err);
+    if (supabaseBookings.data) {
+      supabaseDates = supabaseBookings.data.map((b) => ({
+        id: b.id,
+        start: new Date(b.start_date),
+        end: new Date(b.end_date),
+        source: "supabase",
+      }));
     }
 
     try {
@@ -156,10 +152,10 @@ useEffect(() => {
           const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
           if (!startMatch || !endMatch) return null;
           const parse = (s) =>
-            new Date(`${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`);
+            new Date(`${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`);
           return {
             start: parse(startMatch[1]),
-            end: addDays(parse(endMatch[1]), 1),
+            end: addDays(parse(endMatch[1]), 1), // iCal ends are exclusive, make them inclusive
             source: "ical",
           };
         })
