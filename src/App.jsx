@@ -54,29 +54,37 @@ const fetchDirectBookings = async () => {
       return d >= s && d <= e;
     });
   };
+const handleBooking = async () => {
+  const newBooking = bookingDetails.dates[0];
 
-  const handleBooking = async () => {
-    const newBooking = bookingDetails.dates[0];
-
-    const insertData = {
-      name: bookingDetails.name,
-      email: bookingDetails.email,
-      start_date: newBooking.startDate.toISOString().split("T")[0],
-      end_date: newBooking.endDate.toISOString().split("T")[0],
-    };
-
-    const { data, error } = await supabase.from("bookings").insert([insertData]);
-
-    if (error) {
-      alert("Booking failed: " + error.message);
-    } else {
-      alert("Booking saved!");
-      setBookedDates([
-        ...bookedDates,
-        { start: newBooking.startDate, end: newBooking.endDate },
-      ]);
-    }
+  const insertData = {
+    name: bookingDetails.name,
+    email: bookingDetails.email,
+    start_date: newBooking.startDate.toISOString().split("T")[0],
+    end_date: newBooking.endDate.toISOString().split("T")[0],
   };
+
+  const { data, error } = await supabase.from("bookings").insert([insertData]).select();
+
+  if (error) {
+    alert("Booking failed: " + error.message);
+    console.error("Insert error:", error);
+  } else {
+    alert("Booking saved!");
+    console.log("Inserted booking:", data);
+
+    setBookedDates((prev) => [
+      ...prev,
+      {
+        id: data[0]?.id ?? Math.random(), // include ID
+        start: newBooking.startDate,
+        end: newBooking.endDate,
+        source: "supabase", // mark origin
+      },
+    ]);
+  }
+};
+
 
   const fetchAdminBookings = async () => {
     try {
