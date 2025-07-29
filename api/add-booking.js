@@ -1,23 +1,25 @@
-import fs from 'fs';
-import path from 'path';
+// api/add-booking.js
+import fs from "fs/promises";
+import path from "path";
 
-export default function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  const filePath = path.join(process.cwd(), 'data', 'bookings.json');
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  const bookings = JSON.parse(fileContents);
+  try {
+    const filePath = path.resolve("./public/data/bookings.json");
+    const json = await fs.readFile(filePath, "utf-8");
+    const bookings = JSON.parse(json);
+    const newBooking = req.body;
 
-  const newBooking = {
-    ...req.body,
-    id: Date.now(),
-    created_at: new Date().toISOString()
-  };
+    bookings.push(newBooking);
 
-  bookings.push(newBooking);
-  fs.writeFileSync(filePath, JSON.stringify(bookings, null, 2));
+    await fs.writeFile(filePath, JSON.stringify(bookings, null, 2));
 
-  res.status(201).json(newBooking);
+    res.status(200).json({ message: "Booking saved" });
+  } catch (err) {
+    console.error("API error:", err);
+    res.status(500).json({ message: "Failed to write booking." });
+  }
 }
