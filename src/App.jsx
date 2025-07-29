@@ -128,62 +128,53 @@ const fetchDirectBookings = async () => {
     }
   };
 useEffect(() => {
-  fetchDirectBookings();
-}, []);
-  useEffect(() => {
-	  
-	   fetchDirectBookings(); 
-	  
-    const loadDates = async () => {
-      const supabaseBookings = await supabase
-        .from("bookings")
-        .select("id, start_date, end_date");
+  const loadDates = async () => {
+    let supabaseDates = [];
 
-      let supabaseDates = [];
-      if (supabaseBookings.data) {
-        supabaseDates = supabaseBookings.data.map((b) => {
-          const start = new Date(b.start_date);
-          const end = new Date(b.end_date);
+    try {
+      const res = await fetch("/api/fetch-bookings");
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        supabaseDates = data.map((b) => ({
+          id: b.id,
+          start: new Date(b.start_date),
+          end: new Date(b.end_date),
+          source: "supabase",
+        }));
+      }
+    } catch (err) {
+      console.error("Backend booking fetch failed:", err);
+    }
+
+    try {
+      const res = await fetch("/api/bookingcom");
+      const text = await res.text();
+      const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
+        .map((entry) => {
+          const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
+          const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
+          if (!startMatch || !endMatch) return null;
+          const parse = (s) =>
+            new Date(`${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`);
           return {
-            id: b.id,
-            start,
-            end,
-            source: "supabase",
+            start: parse(startMatch[1]),
+            end: addDays(parse(endMatch[1]), 1),
+            source: "ical",
           };
-        });
-      }
+        })
+        .filter(Boolean);
 
-      try {
-        const res = await fetch("/api/bookingcom");
-        const text = await res.text();
-        const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
-          .map((entry) => {
-            const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
-            const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
-            if (!startMatch || !endMatch) return null;
-            const parse = (s) =>
-              new Date(
-                `${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`
-              );
-            return {
-              start: parse(startMatch[1]),
-              end: addDays(parse(endMatch[1]), 1),
-              source: "ical",
-            };
-          })
-          .filter(Boolean);
+      setBookedDates([...supabaseDates, ...events]);
+    } catch (err) {
+      console.error("Failed to import Booking.com iCal:", err);
+      setBookedDates([...supabaseDates]);
+    }
+  };
 
-        setBookedDates([...supabaseDates, ...events]);
-      } catch (err) {
-        console.error("Failed to import Booking.com iCal:", err);
-        setBookedDates([...supabaseDates]);
-      }
-    };
+  loadDates();
+}, []);
 
-    loadDates();
-  }, []);
-
- 
 
   const galleryMeta = [
     { name: "bed", width: 1600, height: 1200 },
