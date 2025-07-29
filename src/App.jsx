@@ -8,7 +8,12 @@ import { addDays, format } from "date-fns";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./index.css";
+import { createClient } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 function App() {
   const [bookingDetails, setBookingDetails] = useState({
@@ -28,22 +33,139 @@ function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminError, setAdminError] = useState("");
 
+  const isDateBooked = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+
+    return bookedDates.some(({ start, end }) => {
+      const s = new Date(start);
+      s.setHours(0, 0, 0, 0);
+      const e = new Date(end);
+      e.setHours(0, 0, 0, 0);
+      return d >= s && d <= e;
+    });
+  };
+
+  const handleBooking = async () => {
+    const newBooking = bookingDetails.dates[0];
+
+    const insertData = {
+      name: bookingDetails.name,
+      email: bookingDetails.email,
+      start_date: newBooking.startDate.toISOString().split("T")[0],
+      end_date: newBooking.endDate.toISOString().split("T")[0],
+    };
+
+    const { data, error } = await supabase.from("bookings").insert([insertData]);
+
+    if (error) {
+      alert("Booking failed: " + error.message);
+    } else {
+      alert("Booking saved!");
+      setBookedDates([
+        ...bookedDates,
+        { start: newBooking.startDate, end: newBooking.endDate },
+      ]);
+    }
+  };
+
+  const fetchAdminBookings = async () => {
+    try {
+      const res = await fetch("/api/fetch-bookings");
+      const data = await res.json();
+
+      if (res.ok) {
+        setAdminBookings(data);
+      } else {
+        console.error("Failed to fetch admin bookings:", data.error);
+      }
+    } catch (err) {
+      console.error("Network or server error:", err);
+    }
+  };
+
+  const handleAdminClick = async () => {
+    if (showAdmin) {
+      setShowAdmin(false);
+      return;
+    }
+
+    const input = prompt("Enter admin password:");
+    if (!input) return;
+
+    const { data, error } = await supabase
+      .from("admin_keys")
+      .select("*")
+      .eq("secret", input);
+
+    if (error) {
+      console.error("Supabase query error:", error);
+      setAdminError("Error checking credentials.");
+    } else if (data.length > 0) {
+      setShowAdmin(true);
+      setAdminError("");
+    } else {
+      setAdminError("Incorrect password.");
+    }
+  };
+
+  const deleteBooking = async (id) => {
+    const { error } = await supabase.from("bookings").delete().eq("id", id);
+    if (!error) {
+      setAdminBookings((prev) => prev.filter((b) => b.id !== id));
+      setBookedDates((prev) => prev.filter((b) => b.source !== "supabase" || b.id !== id));
+    } else {
+      console.error("Delete failed", error);
+    }
+  };
+
   useEffect(() => {
     const loadDates = async () => {
+      const supabaseBookings = await supabase
+        .from("bookings")
+        .select("id, start_date, end_date");
+
+      let supabaseDates = [];
+      if (supabaseBookings.data) {
+        supabaseDates = supabaseBookings.data.map((b) => {
+          const start = new Date(b.start_date);
+          const end = new Date(b.end_date);
+          return {
+            id: b.id,
+            start,
+            end,
+            source: "supabase",
+          };
+        });
+      }
+
       try {
-        const res = await fetch("/data/bookings.json");
-        const data = await res.json();
-        const formatted = data.map((b) => ({
-          id: b.id,
-          start: new Date(b.start_date),
-          end: new Date(b.end_date),
-          source: "flatfile",
-        }));
-        setBookedDates(formatted);
+        const res = await fetch("/api/bookingcom");
+        const text = await res.text();
+        const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
+          .map((entry) => {
+            const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
+            const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
+            if (!startMatch || !endMatch) return null;
+            const parse = (s) =>
+              new Date(
+                `${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`
+              );
+            return {
+              start: parse(startMatch[1]),
+              end: addDays(parse(endMatch[1]), 1),
+              source: "ical",
+            };
+          })
+          .filter(Boolean);
+
+        setBookedDates([...supabaseDates, ...events]);
       } catch (err) {
-        console.error("Failed to load bookings.json", err);
+        console.error("Failed to import Booking.com iCal:", err);
+        setBookedDates([...supabaseDates]);
       }
     };
+
     loadDates();
   }, []);
 
