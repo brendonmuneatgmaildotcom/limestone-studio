@@ -53,8 +53,9 @@ function App() {
     const insertData = {
       name: bookingDetails.name,
       email: bookingDetails.email,
-      start_date: newBooking.startDate.toISOString().split("T")[0],
-      end_date: newBooking.endDate.toISOString().split("T")[0],
+      start_date: newBooking.startDate.toLocaleDateString("en-CA"),
+      end_date: newBooking.endDate.toLocaleDateString("en-CA"),
+
     };
 
     const { data, error } = await supabase.from("bookings").insert([insertData]);
@@ -152,7 +153,7 @@ function App() {
           new Date(`${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`);
         return {
           start: parse(startMatch[1]),
-          end: addDays(parse(endMatch[1]), -1), // ✅ Adjust for checkout logic
+          end: parse(endMatch[1]), // ✅ use as-is; Booking.com DTEND is checkout day
           source: "ical",
         };
       })
