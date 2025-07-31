@@ -16,6 +16,8 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function App() {
+	const isValidEmail = (email) =>  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const [bookingDetails, setBookingDetails] = useState({
     name: "",
     email: "",
@@ -276,13 +278,19 @@ function App() {
               onChange={(e) => setBookingDetails({ ...bookingDetails, name: e.target.value })}
               className="w-full border rounded px-3 py-2"
             />
-            <input
-              type="email"
-              placeholder="Your Email"
-              value={bookingDetails.email}
-              onChange={(e) => setBookingDetails({ ...bookingDetails, email: e.target.value })}
-              className="w-full border rounded px-3 py-2"
-            />
+<input
+  type="email"
+  placeholder="Your Email"
+  value={bookingDetails.email}
+  onChange={(e) =>
+    setBookingDetails({ ...bookingDetails, email: e.target.value })
+  }
+  className="w-full border rounded px-3 py-2"
+/>
+{bookingDetails.email && !isValidEmail(bookingDetails.email) && (
+  <p className="text-sm text-red-600 mt-1">Please enter a valid email address</p>
+)}
+
             <DateRange
               editableDateInputs
               moveRangeOnFirstSelection={false}
@@ -294,9 +302,20 @@ function App() {
             <p className="text-sm text-gray-600">
               Booking from <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong> to <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
             </p>
-            <button onClick={handleBooking} className="bg-blue-600 text-white px-6 py-3 rounded">
-              Book Now (under construction - call 028 8521 8637)
-            </button>
+        <button
+  onClick={handleBooking}
+  disabled={
+    !bookingDetails.name || !isValidEmail(bookingDetails.email)
+  }
+  className={`mt-4 px-6 py-3 rounded text-white ${
+    !bookingDetails.name || !isValidEmail(bookingDetails.email)
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-blue-600 hover:bg-blue-700"
+  }`}
+>
+  Book Now (under construction - call 028 8521 8637)
+</button>
+
           </div>
 
           <form
