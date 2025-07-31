@@ -151,7 +151,7 @@ function App() {
             new Date(`${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`);
           return {
             start: parse(startMatch[1]),
-            end: parse(endMatch[1]),
+            end: addDays(parse(endMatch[1]), -1),
             source: "ical",
           };
         })
