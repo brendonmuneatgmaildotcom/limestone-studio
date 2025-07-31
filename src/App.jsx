@@ -47,31 +47,70 @@ function App() {
     return d >= s && d < e;  // NOTICE: `< e` instead of `<= e`
   });
 };
+  const isRangeAvailable = (start, end) => {
+  const rangeStart = new Date(start);
+  const rangeEnd = new Date(end);
+
+  return !bookedDates.some(({ start: bookedStart, end: bookedEnd }) => {
+    const bs = new Date(bookedStart);
+    const be = new Date(bookedEnd);
+    return rangeStart <= be && rangeEnd >= bs;
+  });
+};
 
 
-  const handleBooking = async () => {
-    const newBooking = bookingDetails.dates[0];
+const handleBooking = async () => {
+  const newBooking = bookingDetails.dates[0];
 
-    const insertData = {
-      name: bookingDetails.name,
-      email: bookingDetails.email,
-      start_date: newBooking.startDate.toLocaleDateString("en-CA"),
-      end_date: newBooking.endDate.toLocaleDateString("en-CA"),
+  if (!bookingDetails.name || !bookingDetails.email) {
+    alert("Please fill in both name and email.");
+    return;
+  }
 
-    };
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    const { data, error } = await supabase.from("bookings").insert([insertData]);
+  if (!isValidEmail(bookingDetails.email)) {
+    alert("Please enter a valid email address.");
+    return;
+  }
 
-    if (error) {
-      alert("Booking failed: " + error.message);
-    } else {
-      alert("Booking saved!");
-      setBookedDates([
-        ...bookedDates,
-        { start: newBooking.startDate, end: newBooking.endDate },
-      ]);
-    }
+  const start = newBooking.startDate;
+  const end = newBooking.endDate;
+
+  const isRangeAvailable = (start, end) => {
+    const rangeStart = new Date(start);
+    const rangeEnd = new Date(end);
+
+    return !bookedDates.some(({ start: bookedStart, end: bookedEnd }) => {
+      const bs = new Date(bookedStart);
+      const be = new Date(bookedEnd);
+      return rangeStart <= be && rangeEnd >= bs;
+    });
   };
+
+  if (!isRangeAvailable(start, end)) {
+    alert("Selected date range overlaps with an existing booking.");
+    return;
+  }
+
+  const insertData = {
+    name: bookingDetails.name,
+    email: bookingDetails.email,
+    start_date: start.toLocaleDateString("en-CA"),
+    end_date: end.toLocaleDateString("en-CA"),
+  };
+
+  const { data, error } = await supabase.from("bookings").insert([insertData]);
+
+  if (error) {
+    alert("Booking failed: " + error.message);
+  } else {
+    alert("Booking saved!");
+    setBookedDates([...bookedDates, { start, end }]);
+  }
+};
+
 
   const fetchAdminBookings = async () => {
     try {
