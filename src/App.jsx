@@ -34,17 +34,18 @@ function App() {
   const [adminError, setAdminError] = useState("");
 
   const isDateBooked = (date) => {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
 
-    return bookedDates.some(({ start, end }) => {
-      const s = new Date(start);
-      s.setHours(0, 0, 0, 0);
-      const e = new Date(end);
-      e.setHours(0, 0, 0, 0);
-      return d >= s && d <= e;
-    });
-  };
+  return bookedDates.some(({ start, end }) => {
+    const s = new Date(start);
+    const e = new Date(end);
+    s.setHours(0, 0, 0, 0);
+    e.setHours(0, 0, 0, 0);
+    return d >= s && d < e;  // NOTICE: `< e` instead of `<= e`
+  });
+};
+
 
   const handleBooking = async () => {
     const newBooking = bookingDetails.dates[0];
