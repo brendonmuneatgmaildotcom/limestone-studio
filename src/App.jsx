@@ -94,7 +94,7 @@ const handleBooking = async () => {
     return;
   }
 
-  // Insert into Supabase
+  // de Insert into Supabase
   const insertData = {
     name: bookingDetails.name,
     email: bookingDetails.email,
