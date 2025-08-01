@@ -94,6 +94,7 @@ const handleBooking = async () => {
     return;
   }
 
+  // Insert into Supabase
   const insertData = {
     name: bookingDetails.name,
     email: bookingDetails.email,
@@ -105,11 +106,39 @@ const handleBooking = async () => {
 
   if (error) {
     alert("Booking failed: " + error.message);
-  } else {
-    alert("Booking saved!");
-    setBookedDates([...bookedDates, { start, end }]);
+    return;
+  }
+
+  setBookedDates([...bookedDates, { start, end }]);
+  alert("Booking saved! Redirecting to payment...");
+
+  // ⚠️ NEW: Create Stripe Checkout session
+  try {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: bookingDetails.name,
+        email: bookingDetails.email,
+        dates: {
+          startDate: start.toISOString(),
+          endDate: end.toISOString(),
+        },
+      }),
+    });
+
+    const result = await res.json();
+
+    if (result?.url) {
+      window.location.href = result.url;
+    } else {
+      alert("Failed to initiate payment.");
+    }
+  } catch (err) {
+    alert("Error connecting to payment gateway: " + err.message);
   }
 };
+
 
 
   const fetchAdminBookings = async () => {
