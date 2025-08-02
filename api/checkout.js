@@ -44,8 +44,8 @@ export default async function handler(req, res) {
           quantity: 1,
         },
       ],
-      success_url: 'https://limestone-studio.vercel.app/thank-you',
-      cancel_url: 'https://limestone-studio.vercel.app/cancelled',
+      success_url: 'https://limestone-studio.vercel.app/',
+      cancel_url: 'https://limestone-studio.vercel.app/',
     });
 
     res.status(200).json({ url: session.url });
