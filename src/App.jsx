@@ -191,7 +191,7 @@ const handleBooking = async () => {
     }
   };
 
- useEffect(() => {
+
 	 
 useEffect(() => {
   const params = new URLSearchParams(window.location.search);
