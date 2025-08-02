@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
   const pricePerNight = 150; // NZD
   const totalPrice = nights * pricePerNight * 100; // convert to cents
-
+  
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -44,8 +44,9 @@ export default async function handler(req, res) {
           quantity: 1,
         },
       ],
-      success_url: 'https://limestone-studio.vercel.app/',
-      cancel_url: 'https://limestone-studio.vercel.app/',
+      success_url: 'https://limestone-studio.vercel.app/?status=success',
+      cancel_url: 'https://limestone-studio.vercel.app/?status=cancelled',
+
     });
 
     res.status(200).json({ url: session.url });

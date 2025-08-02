@@ -192,6 +192,17 @@ const handleBooking = async () => {
   };
 
  useEffect(() => {
+	 
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const status = params.get("status");
+
+  if (status === "success") {
+    alert("✅ Thank you for your payment. A confirmation email will follow.");
+  } else if (status === "cancelled") {
+    alert("⚠️ Payment and booking cancelled. Thank you.");
+  }
+
  const loadDates = async () => {
   let supabaseDates = [];
 
