@@ -1,50 +1,66 @@
-import { DateRange } from "react-date-range";
-import { addDays, isSameDay, isBefore, isAfter, isWithinInterval } from "date-fns";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
+// src/BookingCalendar.jsx
 import React from "react";
+import { format, isBefore, isSameDay } from "date-fns";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
 
-export default function BookingCalendar({ bookedDates, selectionRange, onChange }) {
-  const isDateBooked = (date) => {
+function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
+  const isBooked = (date) => {
     return bookedDates.some(({ start, end }) => {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-
-      // Treat bookings as [start, end) — user leaves on end date
-      return isWithinInterval(date, {
-        start: startDate,
-        end: addDays(endDate, -1),
-      });
+      return date >= new Date(start) && date < new Date(end);
     });
   };
 
-  const isRangeBooked = ({ startDate, endDate }) => {
-    const checkDate = new Date(startDate);
-    while (isBefore(checkDate, endDate)) {
-      if (isDateBooked(checkDate)) return true;
-      checkDate.setDate(checkDate.getDate() + 1);
-    }
-    return false;
+  const isStartOfBooking = (date) => {
+    return bookedDates.some(({ start }) => isSameDay(date, new Date(start)));
   };
 
-  const handleSelect = (ranges) => {
-    const range = ranges.selection;
-    if (isRangeBooked(range)) {
-      alert("❌ Selected range overlaps with an existing booking.");
-      return;
+  const handleSelect = (range) => {
+    if (range?.from && range?.to) {
+      setSelectedRange([{ startDate: range.from, endDate: range.to, key: "selection" }]);
+    } else if (range?.from) {
+      setSelectedRange([{ startDate: range.from, endDate: range.from, key: "selection" }]);
     }
-    onChange(range);
   };
 
-  const disabledDay = (date) => isDateBooked(date);
+  const modifiers = {
+    booked: (date) =>
+      isBooked(date) && !isStartOfBooking(date), // fully disabled dates
+    checkoutable: (date) => isStartOfBooking(date),
+  };
+
+  const disabled = [
+    {
+      before: new Date(),
+      day: (date) => isBooked(date) && !isStartOfBooking(date),
+    },
+  ];
 
   return (
-    <DateRange
-      ranges={[selectionRange]}
-      onChange={handleSelect}
-      minDate={new Date()}
-      disabledDay={disabledDay}
-      moveRangeOnFirstSelection={false}
-    />
+    <div className="bg-white rounded-xl p-4 shadow-md">
+      <DayPicker
+        mode="range"
+        selected={{
+          from: selectedRange[0]?.startDate,
+          to: selectedRange[0]?.endDate,
+        }}
+        onSelect={handleSelect}
+        disabled={disabled}
+        modifiers={modifiers}
+        modifiersStyles={{
+          booked: { backgroundColor: "#ccc", color: "#888" },
+          checkoutable: { backgroundColor: "#f0f0f0", color: "#000" },
+        }}
+      />
+      {selectedRange[0]?.startDate && selectedRange[0]?.endDate && (
+        <p className="mt-2 text-sm text-gray-600">
+          Booking from{" "}
+          <strong>{format(selectedRange[0].startDate, "MMM d, yyyy")}</strong> to{" "}
+          <strong>{format(selectedRange[0].endDate, "MMM d, yyyy")}</strong>
+        </p>
+      )}
+    </div>
   );
 }
+
+export default BookingCalendar;

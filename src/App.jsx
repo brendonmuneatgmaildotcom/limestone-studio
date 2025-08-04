@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { Gallery, Item } from "react-photoswipe-gallery";
 import "photoswipe/dist/photoswipe.css";
-import { DateRange } from "react-date-range";
 import { addDays, format } from "date-fns";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
@@ -365,14 +364,14 @@ useEffect(() => {
   <p className="text-sm text-red-600 mt-1">Please enter a valid email address</p>
 )}
 
-            <DateRange
-              editableDateInputs
-              moveRangeOnFirstSelection={false}
-              ranges={bookingDetails.dates}
-              minDate={new Date()}
-              onChange={(item) => setBookingDetails({ ...bookingDetails, dates: [item.selection] })}
-              disabledDay={isDateBooked}
-            />
+            <BookingCalendar
+  selectedRange={bookingDetails.dates}
+  setSelectedRange={(newDates) =>
+    setBookingDetails({ ...bookingDetails, dates: newDates })
+  }
+  bookedDates={bookedDates}
+/>
+
             <p className="text-sm text-gray-600">
               Booking from <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong> to <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
             </p>
