@@ -10,6 +10,7 @@ import "react-date-range/dist/theme/default.css";
 import "./index.css";
 import { createClient } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet";
+import BookingCalendar from "./BookingCalendar";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
