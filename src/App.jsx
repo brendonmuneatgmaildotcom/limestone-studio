@@ -9,6 +9,7 @@ import "react-date-range/dist/theme/default.css";
 import "./index.css";
 import { createClient } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet";
+import { subDays } from "date-fns";
 import BookingCalendar from "./BookingCalendar";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -226,11 +227,11 @@ useEffect(() => {
         if (!startMatch || !endMatch) return null;
         const parse = (s) =>
           new Date(`${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`);
-        return {
-          start: parse(startMatch[1]),
-          end: parse(endMatch[1]), // ✅ use as-is; Booking.com DTEND is checkout day
-          source: "ical",
-        };
+       return {
+  start: parse(startMatch[1]),
+  end: subDays(parse(endMatch[1]), 1), // ✅ subtracts 1 day from checkout date
+  source: "ical",
+};
       })
       .filter(Boolean);
 
