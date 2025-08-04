@@ -48,9 +48,10 @@ function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
         disabled={disabled}
         modifiers={modifiers}
         modifiersStyles={{
-          booked: { backgroundColor: "#ccc", color: "#888" },
-          checkoutable: { backgroundColor: "#f0f0f0", color: "#000" },
-        }}
+  booked: { backgroundColor: "#888", color: "#fff" },
+  checkoutable: { backgroundColor: "#888", color: "#fff" }
+}}
+
       />
       {selectedRange[0]?.startDate && selectedRange[0]?.endDate && (
         <p className="mt-2 text-sm text-gray-500">
