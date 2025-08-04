@@ -221,19 +221,26 @@ useEffect(() => {
     const res = await fetch("/api/bookingcom");
     const text = await res.text();
     const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
-      .map((entry) => {
-        const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
-        const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
-        if (!startMatch || !endMatch) return null;
-        const parse = (s) =>
-          new Date(`${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`);
-       return {
-  start: parse(startMatch[1]),
- end: subDays(parse(endMatch[1]), 1),  // ✅ subtracts 1 day from checkout date
-  source: "ical",
-};
-      })
-      .filter(Boolean);
+  .map((entry) => {
+    const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
+    const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
+    if (!startMatch || !endMatch) return null;
+
+    const parse = (s) =>
+      new Date(`${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`);
+
+    const start = parse(startMatch[1]);
+    const endRaw = parse(endMatch[1]);
+
+    const end =
+      startMatch[1] === endMatch[1]
+        ? endRaw // single-day booking — do NOT subtract
+        : subDays(endRaw, 1); // multi-day — subtract one
+
+    return { start, end, source: "ical" };
+  })
+  .filter(Boolean);
+
 
     setBookedDates([...supabaseDates, ...events]);
   } catch (err) {
