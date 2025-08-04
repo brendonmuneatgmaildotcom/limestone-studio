@@ -38,19 +38,27 @@ function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
 
   return (
     <div className="bg-white rounded-xl p-4 shadow-md">
-      <DayPicker
-        mode="range"
-        selected={{
-          from: selectedRange[0]?.startDate,
-          to: selectedRange[0]?.endDate,
-        }}
-        onSelect={handleSelect}
-        disabled={disabled}
-        modifiers={modifiers}
-        modifiersStyles={{
-  booked: { backgroundColor: "#888", color: "#fff" },
-  checkoutable: { backgroundColor: "#888", color: "#fff" }
-}}
+     <DayPicker
+  mode="range"
+  defaultMonth={new Date()}
+  numberOfMonths={1}
+  selected={
+    selectedRange[0]?.startDate && selectedRange[0]?.endDate
+      ? {
+          from: selectedRange[0].startDate,
+          to: selectedRange[0].endDate,
+        }
+      : undefined
+  }
+  onSelect={handleSelect}
+  disabled={disabled}
+  modifiers={modifiers}
+  modifiersStyles={{
+    booked: { backgroundColor: "#ccc", color: "#888" },
+    checkoutable: { backgroundColor: "#f0f0f0", color: "#000" },
+  }}
+/>
+
 
       />
       {selectedRange[0]?.startDate && selectedRange[0]?.endDate && (
