@@ -55,7 +55,7 @@ function App() {
   return !bookedDates.some(({ start: bookedStart, end: bookedEnd }) => {
     const bs = new Date(bookedStart);
     const be = new Date(bookedEnd);
-    return rangeStart <= be && rangeEnd >= bs;
+   return !(rangeEnd <= bs || rangeStart >= be);
   });
 };
 
@@ -86,7 +86,7 @@ const handleBooking = async () => {
     return !bookedDates.some(({ start: bookedStart, end: bookedEnd }) => {
       const bs = new Date(bookedStart);
       const be = new Date(bookedEnd);
-      return rangeStart < be && rangeEnd > bs;
+        return !(rangeEnd <= bs || rangeStart >= be);
     });
   };
 
