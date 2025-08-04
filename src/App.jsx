@@ -229,7 +229,7 @@ useEffect(() => {
           new Date(`${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`);
        return {
   start: parse(startMatch[1]),
-  end: subDays(parse(endMatch[1]), 1), // ✅ subtracts 1 day from checkout date
+  end: parse(endMatch[1]), // ✅ subtracts 1 day from checkout date
   source: "ical",
 };
       })
