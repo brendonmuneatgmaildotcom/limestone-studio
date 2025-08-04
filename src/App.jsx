@@ -48,14 +48,19 @@ function App() {
     return d >= s && d < e;  // NOTICE: `< e` instead of `<= e`
   });
 };
-  const isRangeAvailable = (start, end) => {
+const isRangeAvailable = (start, end) => {
   const rangeStart = new Date(start);
   const rangeEnd = new Date(end);
+  rangeStart.setHours(0, 0, 0, 0);
+  rangeEnd.setHours(0, 0, 0, 0);
 
   return !bookedDates.some(({ start: bookedStart, end: bookedEnd }) => {
     const bs = new Date(bookedStart);
     const be = new Date(bookedEnd);
-   return !(rangeEnd <= bs || rangeStart >= be);
+    bs.setHours(0, 0, 0, 0);
+    be.setHours(0, 0, 0, 0);
+
+    return !(rangeEnd <= bs || rangeStart >= be); // This means they overlap
   });
 };
 
@@ -78,17 +83,6 @@ const handleBooking = async () => {
 
   const start = newBooking.startDate;
   const end = newBooking.endDate;
-
-  const isRangeAvailable = (start, end) => {
-    const rangeStart = new Date(start);
-    const rangeEnd = new Date(end);
-
-    return !bookedDates.some(({ start: bookedStart, end: bookedEnd }) => {
-      const bs = new Date(bookedStart);
-      const be = new Date(bookedEnd);
-        return !(rangeEnd <= bs || rangeStart >= be);
-    });
-  };
 
   if (!isRangeAvailable(start, end)) {
     alert("Selected date range overlaps with an existing booking.");
