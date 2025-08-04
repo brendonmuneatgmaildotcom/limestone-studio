@@ -23,11 +23,10 @@ function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
     }
   };
 
-  const modifiers = {
-    booked: (date) =>
-      isBooked(date) && !isStartOfBooking(date), // fully disabled dates
-    checkoutable: (date) => isStartOfBooking(date),
-  };
+const modifiers = {
+  booked: isBooked,
+};
+
 
   const disabled = [
     {
@@ -54,8 +53,8 @@ function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
   disabled={disabled}
   modifiers={modifiers}
   modifiersStyles={{
-    booked: { backgroundColor: "#ccc", color: "#888" },
-    checkoutable: { backgroundColor: "#f0f0f0", color: "#000" },
+    booked: { backgroundColor: "#ddd", color: "#999" },
+   
   }}
 />
 
