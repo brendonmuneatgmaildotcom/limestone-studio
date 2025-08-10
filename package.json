@@ -26,6 +26,7 @@
   },
   "scripts": {
     "images:build": "node scripts/build-images.mjs",
+	  "images:gallery": "node scripts/make-gallery-images.mjs",
     "dev": "vite",
     "prebuild": "node scripts/build-images.mjs",    
     "build": "vite build",

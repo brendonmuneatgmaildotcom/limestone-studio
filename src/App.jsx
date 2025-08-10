@@ -6,6 +6,7 @@ import { addDays, subDays, format } from "date-fns";
 import { createClient } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet";
 import BookingCalendar from "./BookingCalendar";
+import ResponsiveImage from "./components/ResponsiveImage";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -317,32 +318,43 @@ useEffect(() => {
 
           <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
-            <Gallery>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {galleryMeta.map((img, i) => {
-                  const src = `/images/${img.name}.jpg`;
-                  return (
-                    <Item
-                      key={i}
-                      original={src}
-                      thumbnail={src}
-                      width={img.width}
-                      height={img.height}
-                    >
-                      {({ ref, open }) => (
-                        <img
-                          ref={ref}
-                          onClick={open}
-                          src={src}
-                          alt={img.name}
-                          className="rounded-xl object-contain w-full h-auto cursor-pointer transition-transform duration-300 ease-in-out transform hover:scale-125"
-                        />
-                      )}
-                    </Item>
-                  );
-                })}
-              </div>
-            </Gallery>
+ <Gallery>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    {galleryMeta.map((img, i) => {
+      const largeAvif = `/images/${img.name}-large.avif`; // lightbox (loaded on click)
+      const largeWebp = `/images/${img.name}-large.webp`;
+
+      const thumbAvif = `/images/${img.name}-thumb.avif`; // grid thumbnail
+      const thumbWebp = `/images/${img.name}-thumb.webp`;
+      const thumbJpg  = `/images/${img.name}-thumb.jpg`;
+
+      return (
+        <Item
+          key={i}
+          // Prefer AVIF for lightbox original; Photoswipe will use this when opened
+          original={largeAvif}
+          width={img.width}
+          height={img.height}
+        >
+          {({ ref, open }) => (
+            <picture ref={ref} onClick={open} className="cursor-pointer">
+              <source srcSet={thumbAvif} type="image/avif" />
+              <source srcSet={thumbWebp} type="image/webp" />
+              <img
+                src={thumbJpg}
+                alt={img.name}
+                className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+          )}
+        </Item>
+      );
+    })}
+  </div>
+</Gallery>
+
           </div>
 
           <div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
