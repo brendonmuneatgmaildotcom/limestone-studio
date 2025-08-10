@@ -2,14 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { Gallery, Item } from "react-photoswipe-gallery";
-import "photoswipe/dist/photoswipe.css";
-import { addDays, format } from "date-fns";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
-import "./index.css";
+import { addDays, subDays, format } from "date-fns";
 import { createClient } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet";
-import { subDays } from "date-fns";
 import BookingCalendar from "./BookingCalendar";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
