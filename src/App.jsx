@@ -289,6 +289,7 @@ useEffect(() => {
             alt="Limestone Studio"
             className="w-full object-contain rounded-2xl shadow-lg mt-4"
 			loading="eager"
+			fetchpriority="high"
           />
         </div>
 
