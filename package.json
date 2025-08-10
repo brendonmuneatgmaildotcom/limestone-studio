@@ -25,7 +25,12 @@
     "yet-another-react-lightbox-lite": "^1.9.0"
   },
   "scripts": {
-    "images:build": "node scripts/build-images.mjs"
+    "images:build": "node scripts/build-images.mjs",
+    "dev": "vite",
+    "prebuild": "node scripts/build-images.mjs",    
+    "build": "vite build",
+    "preview": "vite preview --port 4173"
+
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
