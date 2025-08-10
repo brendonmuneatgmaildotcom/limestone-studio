@@ -284,13 +284,29 @@ useEffect(() => {
             <h1 className="text-4xl font-bold">Limestone Studio</h1>
             <h2 className="text-2xl">website under development</h2>
           </div>
-          <img
-            src="/images/limestone.jpg"
-            alt="Limestone Studio"
-            className="w-full object-contain rounded-2xl shadow-lg mt-4"
-			loading="eager"
-			fetchpriority="high"
-          />
+          <picture>
+  <source
+    type="image/avif"
+    srcSet="/images/limestone-640.avif 640w, /images/limestone-1024.avif 1024w, /images/limestone-1600.avif 1600w"
+    sizes="100vw"
+  />
+  <source
+    type="image/webp"
+    srcSet="/images/limestone-640.webp 640w, /images/limestone-1024.webp 1024w, /images/limestone-1600.webp 1600w"
+    sizes="100vw"
+  />
+  <img
+    src="/images/limestone-1024.jpg"
+    alt="Limestone Studio"
+    width="1600"
+    height="1200"
+    className="w-full object-contain rounded-2xl shadow-lg mt-4"
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+  />
+</picture>
+
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
