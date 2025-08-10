@@ -24,6 +24,9 @@
     "stripe": "^18.3.0",
     "yet-another-react-lightbox-lite": "^1.9.0"
   },
+  "scripts": {
+    "images:build": "node scripts/build-images.mjs"
+  },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
     "@types/react": "^19.1.8",
