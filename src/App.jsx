@@ -338,49 +338,38 @@ useEffect(() => {
 <Gallery>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
     {galleryMeta.map((img, i) => {
-      const largeWebp = `/images/${img.name}-large.webp`;  // lightbox image
-      const largeJpg  = `/images/${img.name}.jpg`;         // fallback if needed
-
-      const thumbAvif = `/images/${img.name}-thumb.avif`;  // grid thumb
-      const thumbWebp = `/images/${img.name}-thumb.webp`;
-      const thumbJpg  = `/images/${img.name}-thumb.jpg`;
+      const thumbJpg  = `/images/${img.name}-thumb.jpg`;   // ~600px, small
+      const largeWebp = `/images/${img.name}-large.webp`;   // lightbox image
+      const largeJpg  = `/images/${img.name}.jpg`;          // fallback if needed
 
       return (
         <Item
           key={i}
-          original={largeWebp}               // use webp to avoid any avif quirks
-          thumbnail={thumbJpg}               // helps Photoswipe with zoom/thumb
+          original={largeWebp}          // try webp first
+          thumbnail={thumbJpg}          // Photoswipe uses this for zoom thumb
           width={img.width}
           height={img.height}
         >
           {({ ref, open }) => (
-            <button
-              ref={ref}
+            <img
+              ref={ref}                 // ref MUST be on the IMG
               onClick={open}
-              className="block cursor-pointer"
-              type="button"
-              aria-label={`Open ${img.name}`}
-            >
-              <picture>
-                <source srcSet={thumbAvif} type="image/avif" />
-                <source srcSet={thumbWebp} type="image/webp" />
-                <img
-                  src={thumbJpg}
-                  alt={img.name}
-                  width={img.width}
-                  height={img.height}
-                  loading="lazy"
-                  decoding="async"
-                  className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
-                />
-              </picture>
-            </button>
+              src={thumbJpg}
+              alt={img.name}
+              width={img.width}
+              height={img.height}
+              loading="lazy"
+              decoding="async"
+              className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
+            />
           )}
         </Item>
       );
     })}
   </div>
 </Gallery>
+
+
 
 
 
