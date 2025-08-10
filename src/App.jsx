@@ -335,45 +335,53 @@ useEffect(() => {
 
           <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
- <Gallery>
+<Gallery>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
     {galleryMeta.map((img, i) => {
-      const largeAvif = `/images/${img.name}-large.avif`; // opens in lightbox
-      const largeWebp = `/images/${img.name}-large.webp`; // optional fallback
+      const largeWebp = `/images/${img.name}-large.webp`;  // lightbox image
+      const largeJpg  = `/images/${img.name}.jpg`;         // fallback if needed
 
-      const thumbAvif = `/images/${img.name}-thumb.avif`;
+      const thumbAvif = `/images/${img.name}-thumb.avif`;  // grid thumb
       const thumbWebp = `/images/${img.name}-thumb.webp`;
       const thumbJpg  = `/images/${img.name}-thumb.jpg`;
 
       return (
         <Item
           key={i}
-          original={largeAvif}           // can switch to largeWebp if you prefer
-          width={img.width}              // 1600x1200 or 1200x1600 per your meta
+          original={largeWebp}               // use webp to avoid any avif quirks
+          thumbnail={thumbJpg}               // helps Photoswipe with zoom/thumb
+          width={img.width}
           height={img.height}
         >
           {({ ref, open }) => (
-            <picture className="block cursor-pointer">
-              <source srcSet={thumbAvif} type="image/avif" />
-              <source srcSet={thumbWebp} type="image/webp" />
-              <img
-                ref={ref}                 // <-- ref MUST be on the IMG
-                onClick={open}            // click opens lightbox
-                src={thumbJpg}
-                alt={img.name}
-                width={img.width}         // helps prevent CLS
-                height={img.height}
-                loading="lazy"
-                decoding="async"
-                className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
-              />
-            </picture>
+            <button
+              ref={ref}
+              onClick={open}
+              className="block cursor-pointer"
+              type="button"
+              aria-label={`Open ${img.name}`}
+            >
+              <picture>
+                <source srcSet={thumbAvif} type="image/avif" />
+                <source srcSet={thumbWebp} type="image/webp" />
+                <img
+                  src={thumbJpg}
+                  alt={img.name}
+                  width={img.width}
+                  height={img.height}
+                  loading="lazy"
+                  decoding="async"
+                  className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
+                />
+              </picture>
+            </button>
           )}
         </Item>
       );
     })}
   </div>
 </Gallery>
+
 
 
           </div>
