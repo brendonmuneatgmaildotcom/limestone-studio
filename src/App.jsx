@@ -338,31 +338,34 @@ useEffect(() => {
  <Gallery>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
     {galleryMeta.map((img, i) => {
-      const largeAvif = `/images/${img.name}-large.avif`; // lightbox (loaded on click)
-      const largeWebp = `/images/${img.name}-large.webp`;
+      const largeAvif = `/images/${img.name}-large.avif`; // opens in lightbox
+      const largeWebp = `/images/${img.name}-large.webp`; // optional fallback
 
-      const thumbAvif = `/images/${img.name}-thumb.avif`; // grid thumbnail
+      const thumbAvif = `/images/${img.name}-thumb.avif`;
       const thumbWebp = `/images/${img.name}-thumb.webp`;
       const thumbJpg  = `/images/${img.name}-thumb.jpg`;
 
       return (
         <Item
           key={i}
-          // Prefer AVIF for lightbox original; Photoswipe will use this when opened
-          original={largeAvif}
-          width={img.width}
+          original={largeAvif}           // can switch to largeWebp if you prefer
+          width={img.width}              // 1600x1200 or 1200x1600 per your meta
           height={img.height}
         >
           {({ ref, open }) => (
-            <picture ref={ref} onClick={open} className="cursor-pointer">
+            <picture className="block cursor-pointer">
               <source srcSet={thumbAvif} type="image/avif" />
               <source srcSet={thumbWebp} type="image/webp" />
               <img
+                ref={ref}                 // <-- ref MUST be on the IMG
+                onClick={open}            // click opens lightbox
                 src={thumbJpg}
                 alt={img.name}
-                className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
+                width={img.width}         // helps prevent CLS
+                height={img.height}
                 loading="lazy"
                 decoding="async"
+                className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
               />
             </picture>
           )}
@@ -371,6 +374,7 @@ useEffect(() => {
     })}
   </div>
 </Gallery>
+
 
           </div>
 
