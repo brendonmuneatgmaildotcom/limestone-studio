@@ -272,9 +272,10 @@ useEffect(() => {
       <Helmet>
         <title>Limestone Studio — Private Waterfall Garden accommodation in Whangārei</title>
         <link rel="canonical" href="https://www.limestonestudio.co.nz/" />
+		  <meta name="google-site-verification" content="_3yp5XLdhkWx-jbqsp2AG9PMnX1rpRa5MduenvpydYI" />
         <meta
           name="description"
-          content="Relax in your own private studio accommodation with a peaceful limestone garden and waterfall, just a 5 minute walk from Whangārei Hospital.."
+          content="Relax in your own private studio accommodation with a peaceful limestone garden and waterfall, just a 5 minute walk from Whangārei Hospital."
         />
       </Helmet>
     <div className="min-h-screen bg-yellow-100 flex flex-col sm:flex-row justify-center">
