@@ -269,15 +269,83 @@ useEffect(() => {
 
   return (    
     <>
-      <Helmet>
-        <title>Limestone Studio — Private Waterfall Garden accommodation in Whangārei</title>
-        <link rel="canonical" href="https://www.limestonestudio.co.nz/" />
-		  <meta name="google-site-verification" content="_3yp5XLdhkWx-jbqsp2AG9PMnX1rpRa5MduenvpydYI" />
-        <meta
-          name="description"
-          content="Relax in your own private studio accommodation with a peaceful limestone garden and waterfall, just a 5 minute walk from Whangārei Hospital."
-        />
-      </Helmet>
+ <Helmet>
+  {/* Core SEO */}
+  <title>Limestone Studio — Private Waterfall Garden accommodation in Whangārei</title>
+  <link rel="canonical" href="https://www.limestonestudio.co.nz/" />
+  <meta name="google-site-verification" content="_3yp5XLdhkWx-jbqsp2AG9PMnX1rpRa5MduenvpydYI" />
+  <meta
+    name="description"
+    content="Relax in your own private studio accommodation with a peaceful limestone garden and waterfall, just a 5-minute walk from Whangārei Hospital."
+  />
+
+  {/* Open Graph (Facebook/LinkedIn/etc.) */}
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.limestonestudio.co.nz/" />
+  <meta property="og:title" content="Limestone Studio — Private Waterfall Garden accommodation in Whangārei" />
+  <meta
+    property="og:description"
+    content="Private boutique studio with limestone garden and waterfall, 5-minute walk from Whangārei Hospital."
+  />
+  <meta property="og:image" content="https://www.limestonestudio.co.nz/og-image.jpg" /> {/* replace with a real image */}
+  <meta property="og:image:alt" content="Limestone Studio with limestone garden and waterfall" />
+
+  {/* Twitter Card */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Limestone Studio — Private Waterfall Garden accommodation in Whangārei" />
+  <meta
+    name="twitter:description"
+    content="Private boutique studio with limestone garden and waterfall, 5-minute walk from Whangārei Hospital."
+  />
+  <meta name="twitter:image" content="https://www.limestonestudio.co.nz/og-image.jpg" />
+
+  {/* LodgingBusiness structured data */}
+  <script type="application/ld+json">
+    {JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "LodgingBusiness",
+      "name": "Limestone Studio",
+      "url": "https://www.limestonestudio.co.nz/",
+      "image": ["https://www.limestonestudio.co.nz/og-image.jpg"], // replace with your best photo
+      "description":
+        "Private boutique studio with limestone garden and waterfall, 5-minute walk from Whangārei Hospital.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Whangārei",
+        "addressRegion": "Northland",
+        "addressCountry": "NZ"
+      },
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "Free parking", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Wi-Fi", "value": true }
+      ],
+      "checkinTime": "15:00",
+      "checkoutTime": "10:00",
+      "priceRange": "$$"
+    })}
+  </script>
+
+  {/* Optional: FAQ structured data (delete if no FAQ on page) */}
+  {/* <script type="application/ld+json">
+    {JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How far is Limestone Studio from Whangārei Hospital?",
+          "acceptedAnswer": { "@type": "Answer", "text": "About a 5-minute walk." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there parking on site?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, free on-site parking." }
+        }
+      ]
+    })}
+  </script> */}
+</Helmet>
+
     <div className="min-h-screen bg-yellow-100 flex flex-col sm:flex-row justify-center">
       <div className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-top sm:bg-left bg-contain" style={{ backgroundImage: "url('/images/sidebanner.jpg')" }}></div>
       <div className="flex-1 max-w-7xl p-4 sm:p-6">
