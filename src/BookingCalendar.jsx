@@ -4,12 +4,25 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
 function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
-  // A day is considered booked for sleep nights: start <= date < end (checkout morning is available)
-  const isBooked = (date) =>
-    bookedDates.some(({ start, end }) => date >= new Date(start) && date < new Date(end));
+  // Normalize to local midnight for all comparisons
+  const atMidnight = (d) => {
+    const x = new Date(d);
+    x.setHours(0, 0, 0, 0);
+    return x;
+  };
+
+  // Nights booked: start ≤ date < end (checkout morning free)
+  const isBooked = (date) => {
+    const ds = atMidnight(date);
+    return bookedDates.some(({ start, end }) => {
+      const s = atMidnight(start);
+      const e = atMidnight(end);
+      return ds >= s && ds < e;
+    });
+  };
 
   const isStartOfBooking = (date) =>
-    bookedDates.some(({ start }) => isSameDay(date, new Date(start)));
+    bookedDates.some(({ start }) => isSameDay(atMidnight(date), atMidnight(start)));
 
   const handleSelect = (range) => {
     if (range?.from && range?.to) {
@@ -19,14 +32,15 @@ function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
     }
   };
 
-  // IMPORTANT: Use separate disabled entries so checkout day remains clickable
-  // 1) block the past, 2) block booked days EXCEPT the start day so users can select that as checkout
+  // IMPORTANT: function entry (not `{ day: fn }`) so DayPicker doesn’t
+  // inadvertently disable the range start (which causes the 14→15 shift).
   const disabled = [
     { before: new Date() },
     (date) => isBooked(date) && !isStartOfBooking(date),
   ];
 
   const modifiers = { booked: isBooked };
+
 
   return (
     <div className="bg-white rounded-xl p-4 shadow-md">

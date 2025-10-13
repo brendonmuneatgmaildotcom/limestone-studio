@@ -8,6 +8,14 @@ import { Helmet } from "react-helmet";
 import BookingCalendar from "./BookingCalendar";
 import ResponsiveImage from "./components/ResponsiveImage";
 
+// Parse "YYYY-MM-DD" as LOCAL midnight to avoid UTC shifts in NZ time
+const parseYMD = (s) => {
+  if (!s) return null;
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+};
+
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -204,8 +212,8 @@ useEffect(() => {
     if (Array.isArray(data)) {
       supabaseDates = data.map((b) => ({
         id: b.id,
-        start: new Date(b.start_date),
-        end: new Date(b.end_date),
+        start: parseYMD(b.start_date),
+        end:   parseYMD(b.end_date),
         source: "supabase",
       }));
     }
