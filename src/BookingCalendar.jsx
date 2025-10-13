@@ -23,10 +23,9 @@ function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
     }
   };
 
-const modifiers = {
-  booked: isBooked,
-};
-
+  const modifiers = {
+    booked: isBooked,
+  };
 
   const disabled = [
     {
