@@ -221,36 +221,41 @@ useEffect(() => {
     console.error("Backend booking fetch failed:", err);
   }
 
-  try {
-    const res = await fetch("/api/bookingcom");
-    const text = await res.text();
-    const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
-  .map((entry) => {
-    const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
-    const endMatch = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
-    if (!startMatch || !endMatch) return null;
+  // APP.JSX — inside loadDates(), replace the iCal mapping block with this:
+try {
+  const res = await fetch("/api/bookingcom");
+  const text = await res.text();
 
-    const parse = (s) =>
-      new Date(`${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`);
+  const parseYMD = (s) => {
+    // local-midnight parse to avoid UTC shifts in NZ
+    const y = Number(s.slice(0, 4));
+    const m = Number(s.slice(4, 6));
+    const d = Number(s.slice(6, 8));
+    return new Date(y, m - 1, d);
+  };
 
-    const start = parse(startMatch[1]);
-    const endRaw = parse(endMatch[1]);
+  const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
+    .map((entry) => {
+      const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
+      const endMatch   = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
+      if (!startMatch || !endMatch) return null;
 
-    const end =
-      startMatch[1] === endMatch[1]
-        ? endRaw // single-day booking — do NOT subtract
-        : subDays(endRaw, 1); // multi-day — subtract one
+      const startRaw = parseYMD(startMatch[1]);
+      const endRaw   = parseYMD(endMatch[1]);    // DTEND is checkout (exclusive)
 
-    return { start, end, source: "ical" };
-  })
-  .filter(Boolean);
+      // Safety: if feed ever gives equal-or-earlier DTEND, coerce to single night
+      const endExclusive = endRaw <= startRaw ? new Date(startRaw.getFullYear(), startRaw.getMonth(), startRaw.getDate() + 1) : endRaw;
 
+      return { start: startRaw, end: endExclusive, source: "ical" };
+    })
+    .filter(Boolean);
 
-    setBookedDates([...supabaseDates, ...events]);
-  } catch (err) {
-    console.error("Failed to import Booking.com iCal:", err);
-    setBookedDates([...supabaseDates]);
-  }
+  setBookedDates([...supabaseDates, ...events]);
+} catch (err) {
+  console.error("Failed to import Booking.com iCal:", err);
+  setBookedDates([...supabaseDates]);
+}
+
 };
 
 
