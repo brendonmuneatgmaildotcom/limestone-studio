@@ -210,87 +210,72 @@ useEffect(() => {
   const clearQuery = () => window.history.replaceState({}, "", window.location.pathname);
 
   // --- loader: Supabase → bookedDates (Supabase only; no iCal)
-  const loadDates = async () => {
+// BEGIN REPLACEMENT: full loadDates() function
+const loadDates = async () => {
+  try {
+    // 1) Supabase bookings
+    const res = await fetch("/api/fetch-bookings");
+    const data = await res.json();
+
+    const supabaseDates = Array.isArray(data)
+      ? data.map((b) => ({
+          id: b.id,
+          // uses your existing YYYY-MM-DD helper
+          start: parseYMD(b.start_date),
+          end:   parseYMD(b.end_date),
+          source: "supabase",
+        }))
+      : [];
+
+    // 2) Booking.com iCal (optional) — safely wrapped
+    let events = [];
     try {
-      const res = await fetch("/api/fetch-bookings");
-      const data = await res.json();
-      const supabaseDates = Array.isArray(data)
-        ? data.map((b) => ({
-            id: b.id,
-            start: parseYMD(b.start_date), // your local-midnight parser
-            end:   parseYMD(b.end_date),
-            source: "supabase",
-          }))
-        : [];
-      setBookedDates(supabaseDates);
-    } catch (err) {
-      console.error("Backend booking fetch failed:", err);
-      setBookedDates([]);
-    }
-  };
+      const icalRes = await fetch("/api/bookingcom");
+      if (icalRes.ok) {
+        const text = await icalRes.text();
 
-  (async () => {
-    if (status === "success" && sessionId) {
-      // Confirm with server (no webhook needed)
-      try {
-        await fetch(`/api/confirm-checkout?session_id=${encodeURIComponent(sessionId)}`);
-        alert("✅ Thank you for your payment. A confirmation email will follow.");
-      } catch (e) {
-        console.error("Confirm failed", e);
-      } finally {
-        clearQuery();      // strip params from URL
-        await loadDates(); // refresh calendar
+        // Local 8-digit YYYYMMDD parser at local midnight
+        const parseYMD8 = (s) => {
+          const y = Number(s.slice(0, 4));
+          const m = Number(s.slice(4, 6));
+          const d = Number(s.slice(6, 8));
+          return new Date(y, m - 1, d);
+        };
+
+        events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
+          .map((entry) => {
+            const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
+            const endMatch   = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
+            if (!startMatch || !endMatch) return null;
+
+            const startRaw = parseYMD8(startMatch[1]);
+            const endRaw   = parseYMD8(endMatch[1]); // DTEND is checkout (exclusive)
+
+            // Guard: if DTEND <= DTSTART, coerce to single night
+            const endExclusive =
+              endRaw <= startRaw
+                ? new Date(startRaw.getFullYear(), startRaw.getMonth(), startRaw.getDate() + 1)
+                : endRaw;
+
+            return { start: startRaw, end: endExclusive, source: "ical" };
+          })
+          .filter(Boolean);
+      } else {
+        console.error("Booking.com iCal fetch failed:", icalRes.status, icalRes.statusText);
       }
-      return;
+    } catch (icalErr) {
+      console.error("Failed to import Booking.com iCal:", icalErr);
     }
 
-    if (status === "cancelled") {
-      alert("⚠️ Payment and booking cancelled. Thank you.");
-      clearQuery();
-    }
-
-    // Normal initial load
-    await loadDates();
-  })();
-}, []); // run once on mount
- 
-
-  // APP.JSX — inside loadDates(), replace the iCal mapping block with this:
-try {
-  const res = await fetch("/api/bookingcom");
-  const text = await res.text();
-
-  const parseYMD = (s) => {
-    // local-midnight parse to avoid UTC shifts in NZ
-    const y = Number(s.slice(0, 4));
-    const m = Number(s.slice(4, 6));
-    const d = Number(s.slice(6, 8));
-    return new Date(y, m - 1, d);
-  };
-
-  const events = Array.from(text.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g))
-    .map((entry) => {
-      const startMatch = entry[0].match(/DTSTART;VALUE=DATE:(\d{8})/);
-      const endMatch   = entry[0].match(/DTEND;VALUE=DATE:(\d{8})/);
-      if (!startMatch || !endMatch) return null;
-
-      const startRaw = parseYMD(startMatch[1]);
-      const endRaw   = parseYMD(endMatch[1]);    // DTEND is checkout (exclusive)
-
-      // Safety: if feed ever gives equal-or-earlier DTEND, coerce to single night
-      const endExclusive = endRaw <= startRaw ? new Date(startRaw.getFullYear(), startRaw.getMonth(), startRaw.getDate() + 1) : endRaw;
-
-      return { start: startRaw, end: endExclusive, source: "ical" };
-    })
-    .filter(Boolean);
-
-  setBookedDates([...supabaseDates, ...events]);
-} catch (err) {
-  console.error("Failed to import Booking.com iCal:", err);
-  setBookedDates([...supabaseDates]);
-}
-
+    // 3) Merge & set
+    setBookedDates([...supabaseDates, ...events]);
+  } catch (err) {
+    console.error("loadDates() failed:", err);
+    setBookedDates([]); // safe fallback
+  }
 };
+// END REPLACEMENT
+
 
 
   loadDates();
