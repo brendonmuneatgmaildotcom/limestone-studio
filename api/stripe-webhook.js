@@ -7,7 +7,7 @@ export const config = {
   api: { bodyParser: false },
 };
 
-// Utility to read the raw request body
+// Utility to read the raw request body added
 async function buffer(readable) {
   const chunks = [];
   for await (const chunk of readable) chunks.push(chunk);
