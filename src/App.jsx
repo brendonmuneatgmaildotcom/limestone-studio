@@ -20,6 +20,44 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// ===== DEV TRACE GUARDS (remove after you find the culprit) =====
+if (supabase && typeof window !== "undefined") {
+  // 1) Catch ANY call building a query on "bookings"
+  const _from = supabase.from.bind(supabase);
+  supabase.from = (table) => {
+    const qb = _from(table);
+    if (table === "bookings") {
+      // Wrap INSERT specifically so we pause in *your* code, not vendor code
+      const _insert = qb.insert?.bind(qb);
+      qb.insert = (...args) => {
+        console.trace('INSERT to "bookings" called with:', args);
+        debugger; // <-- DevTools will pause here in YOUR file
+        return _insert(...args);
+      };
+      // (Optional) wrap upsert/update too, if needed:
+      const _upsert = qb.upsert?.bind(qb);
+      if (_upsert) qb.upsert = (...args) => { console.trace('UPSERT "bookings"', args); debugger; return _upsert(...args); };
+      const _update = qb.update?.bind(qb);
+      if (_update) qb.update = (...args) => { console.trace('UPDATE "bookings"', args); debugger; return _update(...args); };
+    }
+    return qb;
+  };
+
+  // 2) Belt-and-suspenders: catch any fetch to the REST endpoint (in case a different client instance is used)
+  const _fetch = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    const url = typeof input === "string" ? input : input?.url || "";
+    if (url.includes("/rest/v1/bookings")) {
+      console.trace("FETCH → /rest/v1/bookings", { method: init?.method, body: init?.body });
+      debugger; // <-- pause here in YOUR file
+    }
+    return _fetch(input, init);
+  };
+}
+// ===== end DEV TRACE GUARDS =====
+
+
+
 function App() {
 	const isValidEmail = (email) =>  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -68,20 +106,11 @@ const isRangeAvailable = (start, end) => {
   });
 };
 
-
+// App.jsx (replace handleBooking)
 const handleBooking = async () => {
   const newBooking = bookingDetails.dates[0];
-
-  if (!bookingDetails.name || !bookingDetails.email) {
-    alert("Please fill in both name and email.");
-    return;
-  }
-
-  const isValidEmail = (email) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-  if (!isValidEmail(bookingDetails.email)) {
-    alert("Please enter a valid email address.");
+  if (!bookingDetails.name || !isValidEmail(bookingDetails.email)) {
+    alert("Please enter a valid name and email.");
     return;
   }
 
@@ -93,25 +122,7 @@ const handleBooking = async () => {
     return;
   }
 
-  // de Insert into Supabase
-  const insertData = {
-    name: bookingDetails.name,
-    email: bookingDetails.email,
-    start_date: start.toLocaleDateString("en-CA"),
-    end_date: end.toLocaleDateString("en-CA"),
-  };
-
-  const { data, error } = await supabase.from("bookings").insert([insertData]);
-
-  if (error) {
-    alert("Booking failed: " + error.message);
-    return;
-  }
-
-  setBookedDates([...bookedDates, { start, end }]);
-  alert("Booking saved! Redirecting to payment...");
-
-  // ⚠️ NEW: Create Stripe Checkout session
+  // ✅ No Supabase insert here. Payment first; DB on webhook.
   try {
     const res = await fetch("/api/checkout", {
       method: "POST",
@@ -125,9 +136,7 @@ const handleBooking = async () => {
         },
       }),
     });
-
     const result = await res.json();
-
     if (result?.url) {
       window.location.href = result.url;
     } else {
@@ -137,6 +146,7 @@ const handleBooking = async () => {
     alert("Error connecting to payment gateway: " + err.message);
   }
 };
+
 
 
 
