@@ -62,8 +62,8 @@ export default async function handler(req, res) {
           },
         },
       ],
-      success_url: `${baseUrl}/?status=success`,
-      cancel_url: `${baseUrl}/?status=cancelled`,
+success_url: `${baseUrl}/?status=success&session_id={CHECKOUT_SESSION_ID}`,
+cancel_url:  `${baseUrl}/?status=cancelled`,
       metadata: {
         name,
         email,

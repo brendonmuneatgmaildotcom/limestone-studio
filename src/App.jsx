@@ -201,35 +201,59 @@ const handleBooking = async () => {
   };
 
 
-	 
 useEffect(() => {
   const params = new URLSearchParams(window.location.search);
   const status = params.get("status");
+  const sessionId = params.get("session_id");
 
-  if (status === "success") {
-    alert("✅ Thank you for your payment. A confirmation email will follow.");
-  } else if (status === "cancelled") {
-    alert("⚠️ Payment and booking cancelled. Thank you.");
-  }
+  // --- small helper to clear ?status&session_id from the URL
+  const clearQuery = () => window.history.replaceState({}, "", window.location.pathname);
 
- const loadDates = async () => {
-  let supabaseDates = [];
-
-  try {
-    const res = await fetch("/api/fetch-bookings");
-    const data = await res.json();
-
-    if (Array.isArray(data)) {
-      supabaseDates = data.map((b) => ({
-        id: b.id,
-        start: parseYMD(b.start_date),
-        end:   parseYMD(b.end_date),
-        source: "supabase",
-      }));
+  // --- loader: Supabase → bookedDates (Supabase only; no iCal)
+  const loadDates = async () => {
+    try {
+      const res = await fetch("/api/fetch-bookings");
+      const data = await res.json();
+      const supabaseDates = Array.isArray(data)
+        ? data.map((b) => ({
+            id: b.id,
+            start: parseYMD(b.start_date), // your local-midnight parser
+            end:   parseYMD(b.end_date),
+            source: "supabase",
+          }))
+        : [];
+      setBookedDates(supabaseDates);
+    } catch (err) {
+      console.error("Backend booking fetch failed:", err);
+      setBookedDates([]);
     }
-  } catch (err) {
-    console.error("Backend booking fetch failed:", err);
-  }
+  };
+
+  (async () => {
+    if (status === "success" && sessionId) {
+      // Confirm with server (no webhook needed)
+      try {
+        await fetch(`/api/confirm-checkout?session_id=${encodeURIComponent(sessionId)}`);
+        alert("✅ Thank you for your payment. A confirmation email will follow.");
+      } catch (e) {
+        console.error("Confirm failed", e);
+      } finally {
+        clearQuery();      // strip params from URL
+        await loadDates(); // refresh calendar
+      }
+      return;
+    }
+
+    if (status === "cancelled") {
+      alert("⚠️ Payment and booking cancelled. Thank you.");
+      clearQuery();
+    }
+
+    // Normal initial load
+    await loadDates();
+  })();
+}, []); // run once on mount
+ 
 
   // APP.JSX — inside loadDates(), replace the iCal mapping block with this:
 try {
