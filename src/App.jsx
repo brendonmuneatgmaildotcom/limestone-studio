@@ -479,29 +479,7 @@ const loadDates = async () => {
 
           <div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
             <h2 className="text-2xl font-semibold">View availability</h2>
-            /*
-			<input
-              type="text"
-              placeholder="Your Name"
-              value={bookingDetails.name}
-              onChange={(e) => setBookingDetails({ ...bookingDetails, name: e.target.value })}
-              className="w-full border rounded px-3 py-2"
-            />
-			
-<input
-  type="email"
-  placeholder="Your Email"
-  value={bookingDetails.email}
-  onChange={(e) =>
-    setBookingDetails({ ...bookingDetails, email: e.target.value })
-  }
-  className="w-full border rounded px-3 py-2"
-/>
-
-{bookingDetails.email && !isValidEmail(bookingDetails.email) && (
-  <p className="text-sm text-red-600 mt-1">Please enter a valid email address</p>
-)}
-*/
+          
 
             <BookingCalendar
   selectedRange={bookingDetails.dates}
@@ -514,88 +492,7 @@ const loadDates = async () => {
             <p className="text-sm text-gray-600">
               Booking from <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong> to <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
             </p>
-  /*      <button
-  onClick={handleBooking}
-  disabled={
-    !bookingDetails.name || !isValidEmail(bookingDetails.email)
-  }
-  className={`mt-4 px-6 py-3 rounded text-white ${
-    !bookingDetails.name || !isValidEmail(bookingDetails.email)
-      ? "bg-gray-400 cursor-not-allowed"
-      : "bg-blue-600 hover:bg-blue-700"
-  }`}
->
-  Book Now (under construction - call 028 8521 8637)
-</button>
-
-          </div>
-
-          <form
-            id="contact"
-            action="https://formspree.io/f/mpwrnlnn"
-            method="POST"
-            className="bg-white rounded-2xl shadow-md p-6 space-y-4 mt-8"
-          >
-            <h2 className="text-2xl font-bold text-gray-800">Send an Inquiry</h2>
-            <input
-              type="text"
-              name="name"
-              placeholder="Your Name"
-              required
-              className="w-full border rounded px-3 py-2"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Your Email"
-              required
-              className="w-full border rounded px-3 py-2"
-            />
-            <textarea
-              name="message"
-              placeholder="Your Message"
-              rows="4"
-              required
-              className="w-full border rounded px-3 py-2"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-5 py-2 rounded-xl hover:bg-blue-700"
-            >
-              Send Message
-            </button>
-          </form>
-
- 
-
-          {showAdmin && (
-            <div className="mt-6 bg-white p-6 rounded-xl shadow-md">
-              <h3 className="text-xl font-bold mb-4">Admin Dashboard</h3>
-              <button
-                onClick={fetchAdminBookings}
-                className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
-              >
-                Fetch Bookings
-              </button>
-              <ul className="space-y-4">
-                {adminBookings.map((b) => (
-                  <li key={b.id} className="border-b pb-2 flex justify-between">
-                    <div>
-                      <p className="font-semibold">{b.name} ({b.email})</p>
-                      <p>{new Date(b.start_date).toLocaleDateString()} to {new Date(b.end_date).toLocaleDateString()}</p>
-                    </div>
-                    <button
-                      onClick={() => deleteBooking(b.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded"
-                    >
-                      Delete Booking
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-*/
+  
         </div>
       </div>
       <div className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain" style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}></div>
