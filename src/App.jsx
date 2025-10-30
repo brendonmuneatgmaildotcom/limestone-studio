@@ -395,7 +395,7 @@ const loadDates = async () => {
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
           <p className="text-sm text-center text-gray-600">
-            📍 Top of Hospital Rd, Whangarei, New Zealand
+            📍 Top of Hospital Rd, Whangārei, New Zealand
           </p>
 
           <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
