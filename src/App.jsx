@@ -360,8 +360,13 @@ const loadDates = async () => {
 
 </Helmet>
 
+
     <div className="min-h-screen bg-yellow-100 flex flex-col sm:flex-row justify-center">
-      <div className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-top sm:bg-left bg-contain" style={{ backgroundImage: "url('/images/sidebanner.jpg')" }}></div>
+     <div
+  className="hidden sm:block w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-top sm:bg-left bg-contain sm:shrink-0"
+  style={{ backgroundImage: "url('/images/sidebanner.jpg')" }}
+></div>
+
       <div className="flex-1 max-w-7xl p-4 sm:p-6">
         <div className="relative left-1/2 w-[90vw] max-w-screen-xl -translate-x-1/2 mb-6">
           <div className="bg-green-600 text-white py-6 rounded-xl text-center">
@@ -479,10 +484,11 @@ const loadDates = async () => {
       </div>{/* ← closes .flex-1 main content column */}
 
       {/* RIGHT: vertical/banner strip (sibling of main content) */}
-      <div
-        className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain"
-        style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}
-      ></div>
+<div
+  className="hidden sm:block w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain sm:shrink-0"
+  style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}
+></div>
+
     </div>{/* ← closes outer .min-h-screen flex container */}
   </>
 );
