@@ -473,32 +473,38 @@ const loadDates = async () => {
 
 
 
+<div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
+  <h2 className="text-2xl font-semibold">View availability</h2>
 
+  <BookingCalendar
+    selectedRange={bookingDetails.dates}
+    setSelectedRange={(newDates) =>
+      setBookingDetails({ ...bookingDetails, dates: newDates })
+    }
+    bookedDates={bookedDates}
+  />
 
-          </div>
+  {bookingDetails?.dates?.[0]?.startDate && bookingDetails?.dates?.[0]?.endDate && (
+    <p className="text-sm text-gray-600">
+      Booking from{" "}
+      <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong>{" "}
+      to{" "}
+      <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
+    </p>
+  )}
+</div>
 
-          <div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
-            <h2 className="text-2xl font-semibold">View availability</h2>
-          
-
-            <BookingCalendar
-  selectedRange={bookingDetails.dates}
-  setSelectedRange={(newDates) =>
-    setBookingDetails({ ...bookingDetails, dates: newDates })
-  }
-  bookedDates={bookedDates}
+<div
+  className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain"
+  style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}
 />
 
-            <p className="text-sm text-gray-600">
-              Booking from <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong> to <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
-            </p>
-  
-        </div>
-      </div>
-      <div className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain" style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}></div>
-    </div>
-    </>
-  );
+</div>{/* ← closes the main content column (opened above) */}
+</div>{/* ← closes the outer page/flex container (opened above) */}
+
+</>
+);
 }
 
-export default App; 
+export default App;
+
