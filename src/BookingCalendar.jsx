@@ -4,38 +4,34 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
 function BookingCalendar({ bookedDates }) {
-  // A day is booked if it falls within any booked range
-  const isBooked = (date) => {
-    return bookedDates.some(({ start, end }) => {
-      const s = new Date(start);
-      const e = new Date(end);
-      s.setHours(0, 0, 0, 0);
-      e.setHours(0, 0, 0, 0);
-      return date >= s && date < e; // booked days = [start, end)
-    });
-  };
+  // Any date that falls inside a booked range
+  const isBooked = (date) =>
+    bookedDates.some(({ start, end }) => date >= new Date(start) && date < new Date(end));
 
-  const modifiers = {
-    booked: isBooked,
-  };
+  // Mark booked days with a subtle gray background
+  const modifiers = { booked: isBooked };
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-md select-none pointer-events-none">
+    <div className="bg-white rounded-xl p-4 shadow-md select-none">
       <DayPicker
-        mode="single"                // prevents range logic
-        selected={undefined}         // no visible selection
-        onDayClick={() => {}}        // ignore clicks
-        onSelect={() => {}}          // ignore range changes
-        showOutsideDays={true}
+        mode="single"             // use a neutral mode (no range UI)
+        onSelect={() => {}}       // disable click selection
+        showOutsideDays           // still show neighboring days
+        disableNavigation={false} // keep arrows working
+        selected={undefined}      // no highlight for today or anything
+        today={undefined}         // hide today highlight
         modifiers={modifiers}
         modifiersStyles={{
           booked: {
             backgroundColor: "#ddd",
             color: "#999",
+            borderRadius: "4px",
           },
         }}
-        defaultMonth={new Date()}    // starting month
-        numberOfMonths={1}
+        styles={{
+          caption: { color: "#333", fontWeight: 600 },
+          day: { cursor: "default" },
+        }}
       />
     </div>
   );
