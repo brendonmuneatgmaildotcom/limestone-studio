@@ -59,12 +59,7 @@ function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
         modifiersStyles={{ booked: { backgroundColor: "#ddd", color: "#999" } }}
       />
 
-      {selectedRange[0]?.startDate && selectedRange[0]?.endDate && (
-        <p className="mt-2 text-sm text-gray-500">
-          Booking from <strong>{format(selectedRange[0].startDate, "MMM d, yyyy")}</strong> to {" "}
-          <strong>{format(selectedRange[0].endDate, "MMM d, yyyy")}</strong>
-        </p>
-      )}
+
     </div>
   );
 }

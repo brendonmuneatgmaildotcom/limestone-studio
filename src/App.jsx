@@ -467,18 +467,11 @@ const loadDates = async () => {
               bookedDates={bookedDates}
             />
 
-            {bookingDetails?.dates?.[0]?.startDate && bookingDetails?.dates?.[0]?.endDate && (
-              <p className="text-sm text-gray-600">
-                Booking from{" "}
-                <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong>{" "}
-                to{" "}
-                <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
-              </p>
-            )}
+          
 
             {/* Call to book */}
-            <p className="text-sm">
-              To book, please call{" "}
+            <p className="text-2xl font-semibold">
+              To book, please call Delphine on {" "}
               <a href="tel:+64211234567" className="underline">021&nbsp;123&nbsp;4567</a>.
             </p>
           </div>
