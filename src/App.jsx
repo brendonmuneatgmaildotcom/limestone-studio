@@ -417,75 +417,82 @@ const loadDates = async () => {
             <p className="mb-4">Toiletries, Milk, Hairdryer, Free Wifi, Free Parking, Microwave, Fridge, USB charging, Tea/Coffee, Cutlery, Dishes, Dining table, Writing desk, Large Screen TV with AppleTV shows and movies, Garden, Waterfall, Bush views</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
+           <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Gallery</h2>
-<Gallery>
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    {galleryMeta.map((img, i) => {
-      const thumbJpg  = `/images/${img.name}-thumb.jpg`;   // ~600px, small
-      const largeWebp = `/images/${img.name}-large.webp`;   // lightbox image
-      const largeJpg  = `/images/${img.name}.jpg`;          // fallback if needed
 
-      return (
-        <Item
-          key={i}
-          original={largeWebp}          // try webp first
-          thumbnail={thumbJpg}          // Photoswipe uses this for zoom thumb
-          width={img.width}
-          height={img.height}
-        >
-          {({ ref, open }) => (
-            <img
-              ref={ref}                 // ref MUST be on the IMG
-              onClick={open}
-              src={thumbJpg}
-              alt={img.name}
-              width={img.width}
-              height={img.height}
-              loading="lazy"
-              decoding="async"
-              className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
+            <Gallery>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {galleryMeta.map((img, i) => {
+                  const thumbJpg  = `/images/${img.name}-thumb.jpg`;   // ~600px, small
+                  const largeWebp = `/images/${img.name}-large.webp`;  // lightbox image
+                  const largeJpg  = `/images/${img.name}.jpg`;         // fallback
+
+                  return (
+                    <Item
+                      key={i}
+                      original={largeWebp}
+                      thumbnail={thumbJpg}
+                      width={img.width}
+                      height={img.height}
+                    >
+                      {({ ref, open }) => (
+                        <img
+                          ref={ref}
+                          onClick={open}
+                          src={thumbJpg}
+                          alt={img.name}
+                          width={img.width}
+                          height={img.height}
+                          loading="lazy"
+                          decoding="async"
+                          className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
+                        />
+                      )}
+                    </Item>
+                  );
+                })}
+              </div>
+            </Gallery>
+          </div>
+
+          {/* Availability card (separate section) */}
+          <div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
+            <h2 className="text-2xl font-semibold">View availability</h2>
+
+            <BookingCalendar
+              selectedRange={bookingDetails.dates}
+              setSelectedRange={(newDates) =>
+                setBookingDetails({ ...bookingDetails, dates: newDates })
+              }
+              bookedDates={bookedDates}
             />
-          )}
-        </Item>
-      );
-    })}
-  </div>
-</Gallery>
 
+            {bookingDetails?.dates?.[0]?.startDate && bookingDetails?.dates?.[0]?.endDate && (
+              <p className="text-sm text-gray-600">
+                Booking from{" "}
+                <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong>{" "}
+                to{" "}
+                <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
+              </p>
+            )}
 
+            {/* Call to book */}
+            <p className="text-sm">
+              To book, please call{" "}
+              <a href="tel:+64211234567" className="underline">021&nbsp;123&nbsp;4567</a>.
+            </p>
+          </div>
+        </div>{/* ← closes .max-w-4xl container */}
+      </div>{/* ← closes .flex-1 main content column */}
 
-<div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
-  <h2 className="text-2xl font-semibold">View availability</h2>
-
-  <BookingCalendar
-    selectedRange={bookingDetails.dates}
-    setSelectedRange={(newDates) =>
-      setBookingDetails({ ...bookingDetails, dates: newDates })
-    }
-    bookedDates={bookedDates}
-  />
-
-  {bookingDetails?.dates?.[0]?.startDate && bookingDetails?.dates?.[0]?.endDate && (
-    <p className="text-sm text-gray-600">
-      Booking from{" "}
-      <strong>{format(bookingDetails.dates[0].startDate, "MMM d, yyyy")}</strong>{" "}
-      to{" "}
-      <strong>{format(bookingDetails.dates[0].endDate, "MMM d, yyyy")}</strong>
-    </p>
-  )}
-</div>
-
-<div
-  className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain"
-  style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}
-/>
-
-</div>{/* ← closes the main content column (opened above) */}
-</div>{/* ← closes the outer page/flex container (opened above) */}
-
+      {/* RIGHT: vertical/banner strip (sibling of main content) */}
+      <div
+        className="w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain"
+        style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}
+      ></div>
+    </div>{/* ← closes outer .min-h-screen flex container */}
+  </>
 );
 }
 
 export default App;
-
