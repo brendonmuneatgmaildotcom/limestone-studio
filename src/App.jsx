@@ -357,25 +357,7 @@ const loadDates = async () => {
     })}
   </script>
 
-  {/* Optional: FAQ structured data (delete if no FAQ on page) */}
-  {/* <script type="application/ld+json">
-    {JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How far is Limestone Studio from Whangārei Hospital?",
-          "acceptedAnswer": { "@type": "Answer", "text": "About a 5-minute walk." }
-        },
-        {
-          "@type": "Question",
-          "name": "Is there parking on site?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes, free on-site parking." }
-        }
-      ]
-    })}
-  </script> */}
+
 </Helmet>
 
     <div className="min-h-screen bg-yellow-100 flex flex-col sm:flex-row justify-center">
@@ -502,7 +484,6 @@ const loadDates = async () => {
 </div>{/* ← closes the main content column (opened above) */}
 </div>{/* ← closes the outer page/flex container (opened above) */}
 
-</>
 );
 }
 
