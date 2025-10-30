@@ -366,7 +366,7 @@ const loadDates = async () => {
         <div className="relative left-1/2 w-[90vw] max-w-screen-xl -translate-x-1/2 mb-6">
           <div className="bg-green-600 text-white py-6 rounded-xl text-center">
             <h1 className="text-4xl font-bold">Limestone Studio</h1>
-            <h2 className="text-2xl">website under development</h2>
+        
           </div>
           <picture>
   <source
@@ -457,7 +457,7 @@ const loadDates = async () => {
 
           {/* Availability card (separate section) */}
           <div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
-            <h2 className="text-2xl font-semibold">View availability</h2>
+            <h2 className="text-2xl font-semibold">View availability (grayed out dates are booked)</h2>
 
             <BookingCalendar
               selectedRange={bookingDetails.dates}
@@ -471,8 +471,8 @@ const loadDates = async () => {
 
             {/* Call to book */}
             <p className="text-2xl font-semibold">
-              To book, please call Delphine on {" "}
-              <a href="tel:+64211234567" className="underline">021&nbsp;123&nbsp;4567</a>.
+              To book, please call or text Delphine on {" "}
+              <a href="tel:+642109059679" className="underline">021&nbsp;123&nbsp;45678</a>.
             </p>
           </div>
         </div>{/* ← closes .max-w-4xl container */}
