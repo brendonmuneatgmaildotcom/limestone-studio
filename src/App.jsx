@@ -482,8 +482,8 @@ const loadDates = async () => {
 
             {/* Call to book */}
             <p className="text-2xl font-semibold">
-              To book, please call or text Delphine on {" "}
-              <a href="tel:+642109059679" className="underline">021&nbsp;090&nbsp;59679</a>.
+              To book, please call or text Brendon on {" "}
+              <a href="tel:+642885218637" className="underline">028&nbsp;8521&nbsp;8637</a>
             </p>
           </div>
         </div>{/* ← closes .max-w-4xl container */}
