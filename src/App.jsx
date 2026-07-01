@@ -461,8 +461,8 @@ const loadDates = async () => {
           </div>
 		   <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
             <p className="mb-4 font-bold">Pricing</p>
-			<p className="mb-4">Weekday single $120, Friday/Saturday nights $130</p>
-			<p className="mb-4">Weekday couple $135, Friday/Saturday nights $145</p>
+			<p className="mb-4">Weekday single $130, Friday/Saturday nights $140</p>
+			<p className="mb-4">Weekday couple $145, Friday/Saturday nights $155</p>
 			<p className="mb-4 font-bold">Hospital staff, patients and visitors 10% discount!</p>
             </div>
 
