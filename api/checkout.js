@@ -1,6 +1,7 @@
 // /api/checkout.js
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import { calculateStayPrice } from "../lib/pricing.js";
 
 const BOOKING_COM_ICAL_URL = "https://ical.booking.com/v1/export?t=e30eb621-32d5-454e-a0cb-c6acbdff90bf";
 
@@ -18,13 +19,12 @@ const hasIcalOverlap = (ical, startDate, endDate) =>
  * Env required on Vercel:
  *  - STRIPE_SECRET_KEY
  *  - NEXT_PUBLIC_BASE_URL   (e.g. https://www.limestonestudio.co.nz)
- *  - NIGHTLY_RATE_NZD       (optional; default 175)
- *
  * Frontend POST body shape:
  *  {
  *    "name": "Guest Name",
  *    "email": "guest@example.com",
- *    "dates": { "startDate": ISOString, "endDate": ISOString }
+ *    "dates": { "startDate": "YYYY-MM-DD", "endDate": "YYYY-MM-DD" },
+ *    "guests": 1
  *  }
  */
 
@@ -33,8 +33,9 @@ export default async function handler(req, res) {
 
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const { name, email, dates } = req.body || {};
-    if (!name || !email || !dates?.startDate || !dates?.endDate) {
+    const { name, email, dates, guests } = req.body || {};
+    const guestCount = Number(guests);
+    if (!name || !email || !dates?.startDate || !dates?.endDate || ![1, 2].includes(guestCount)) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -71,14 +72,11 @@ export default async function handler(req, res) {
       return res.status(409).json({ error: "Those dates have just become unavailable. Please choose other dates." });
     }
 
-    const MS_PER_NIGHT = 24 * 60 * 60 * 1000;
-    const nights = Math.round((end - start) / MS_PER_NIGHT);
-
-    const nightlyNZD = Number(process.env.NIGHTLY_RATE_NZD || 175);
-    if (!Number.isFinite(nightlyNZD) || nightlyNZD <= 0) {
-      throw new Error("Invalid nightly rate configuration");
-    }
-    const amountNZD = nightlyNZD * nights;
+    const { nights, amountNZD } = calculateStayPrice(
+      dates.startDate,
+      dates.endDate,
+      guestCount,
+    );
     const amountCents = Math.round(amountNZD * 100);
 
     const baseUrl =
@@ -98,7 +96,7 @@ export default async function handler(req, res) {
             unit_amount: amountCents,
             product_data: {
               name: `Limestone Studio (${nights} night${nights > 1 ? "s" : ""})`,
-              description: `${dates.startDate} to ${dates.endDate}`,
+              description: `${dates.startDate} to ${dates.endDate}, ${guestCount} guest${guestCount > 1 ? "s" : ""}`,
             },
           },
         },
@@ -110,8 +108,8 @@ cancel_url:  `${baseUrl}/?status=cancelled`,
         email,
         startDate: dates.startDate,
         endDate: dates.endDate,
+        guests: String(guestCount),
         nights: String(nights),
-        nightlyNZD: String(nightlyNZD),
         amountNZD: String(amountNZD),
       },
     });

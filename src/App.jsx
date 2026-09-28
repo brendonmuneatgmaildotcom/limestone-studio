@@ -6,6 +6,7 @@ import { addDays, format } from "date-fns";
 import { Helmet } from "react-helmet";
 import BookingCalendar from "./BookingCalendar";
 import ResponsiveImage from "./components/ResponsiveImage";
+import { calculateStayPrice } from "../lib/pricing.js";
 
 // Parse "YYYY-MM-DD" as LOCAL midnight to avoid UTC shifts in NZ time
 const parseYMD = (s) => {
@@ -14,7 +15,6 @@ const parseYMD = (s) => {
   return new Date(y, (m || 1) - 1, d || 1);
 };
 
-const NIGHTLY_RATE_NZD = 175;
 const formatYMD = (date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
@@ -24,6 +24,7 @@ function App() {
   const [bookingDetails, setBookingDetails] = useState({
     name: "",
     email: "",
+    guests: 1,
     dates: [
       {
         startDate: new Date(),
@@ -81,6 +82,7 @@ const handleBooking = async () => {
       body: JSON.stringify({
         name: bookingDetails.name,
         email: bookingDetails.email,
+        guests: bookingDetails.guests,
         dates: {
           startDate: formatYMD(start),
           endDate: formatYMD(end),
@@ -239,7 +241,14 @@ const loadDates = async () => {
   const selectedNights = selectedStart && selectedEnd
     ? Math.max(0, Math.round((selectedEnd - selectedStart) / (24 * 60 * 60 * 1000)))
     : 0;
-  const bookingTotal = selectedNights * NIGHTLY_RATE_NZD;
+  const stayPrice = selectedNights > 0
+    ? calculateStayPrice(formatYMD(selectedStart), formatYMD(selectedEnd), bookingDetails.guests)
+    : { amountNZD: 0, breakdown: [] };
+  const bookingTotal = stayPrice.amountNZD;
+  const rateGroups = stayPrice.breakdown.reduce((groups, night) => {
+    groups[night.total] = (groups[night.total] || 0) + 1;
+    return groups;
+  }, {});
 
   return (    
     <>
@@ -402,7 +411,8 @@ const loadDates = async () => {
           </div>
 		   <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
             <p className="mb-4 font-bold">Pricing</p>
-			<p className="mb-4">$175 NZD per night</p>
+			<p className="mb-2">Base rates range from $135 to $180 NZD per night, depending on season, day and number of guests.</p>
+			<p>Christmas premiums apply from 15 December to 30 January, with an additional peak premium from 22 December to 5 January.</p>
             </div>
 
           {/* Availability and booking */}
@@ -425,13 +435,29 @@ const loadDates = async () => {
                   <strong>{format(selectedEnd, "d MMM yyyy")}</strong>
                 </p>
                 <p className="mt-1">
-                  {selectedNights} night{selectedNights === 1 ? "" : "s"} at ${NIGHTLY_RATE_NZD} NZD
+                  {selectedNights} night{selectedNights === 1 ? "" : "s"} for {bookingDetails.guests} guest{bookingDetails.guests > 1 ? "s" : ""}
                 </p>
+                <div className="mt-2 text-sm text-gray-600">
+                  {Object.entries(rateGroups).map(([rate, count]) => (
+                    <p key={rate}>{count} night{count > 1 ? "s" : ""} at ${rate} NZD</p>
+                  ))}
+                </div>
                 <p className="mt-2 text-xl font-semibold">Total: ${bookingTotal} NZD</p>
               </div>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <label className="text-sm font-medium text-gray-700">
+                Guests
+                <select
+                  value={bookingDetails.guests}
+                  onChange={(event) => setBookingDetails({ ...bookingDetails, guests: Number(event.target.value) })}
+                  className="mt-1 w-full rounded border border-gray-300 bg-white px-3 py-2 text-base"
+                >
+                  <option value={1}>1 guest</option>
+                  <option value={2}>2 guests</option>
+                </select>
+              </label>
               <label className="text-sm font-medium text-gray-700">
                 Name
                 <input
@@ -479,7 +505,9 @@ const loadDates = async () => {
               }
               className="w-full rounded bg-green-700 px-6 py-3 font-semibold text-white hover:bg-green-800 disabled:cursor-not-allowed disabled:bg-gray-400"
             >
-              {paymentState.loading ? "Please wait..." : `Pay $${bookingTotal} NZD securely`}
+              {paymentState.loading
+                ? "Please wait..."
+                : "Payment system under rebuild - no payments will be processed"}
             </button>
 
             <p className="text-sm text-gray-600">
