@@ -49,7 +49,10 @@ export default async function handler(req, res) {
   // ---- Supabase (SERVICE ROLE)
   let supabase;
   try {
-    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+    supabase = createClient(
+      process.env.SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    );
   } catch (err) {
     console.error("❌ supabase client create failed:", err?.message);
     return res.status(500).json({ ok: false, where: "supabase.client", error: err?.message });
