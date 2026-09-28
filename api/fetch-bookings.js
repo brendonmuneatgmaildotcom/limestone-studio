@@ -9,7 +9,7 @@ const supabase = createClient(
 export default async function handler(req, res) {
   const { data, error } = await supabase
     .from('bookings')
-    .select('*')
+    .select('id, start_date, end_date')
     .order('created_at', { ascending: false });
 
   if (error) {

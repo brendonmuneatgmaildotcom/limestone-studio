@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Gallery, Item } from "react-photoswipe-gallery";
-import { addDays, subDays, format } from "date-fns";
-import { createClient } from "@supabase/supabase-js";
+import { addDays, format } from "date-fns";
 import { Helmet } from "react-helmet";
 import BookingCalendar from "./BookingCalendar";
 import ResponsiveImage from "./components/ResponsiveImage";
@@ -15,48 +14,9 @@ const parseYMD = (s) => {
   return new Date(y, (m || 1) - 1, d || 1);
 };
 
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// ===== DEV TRACE GUARDS (remove after you find the culprit) =====
-if (supabase && typeof window !== "undefined") {
-  // 1) Catch ANY call building a query on "bookings"
-  const _from = supabase.from.bind(supabase);
-  supabase.from = (table) => {
-    const qb = _from(table);
-    if (table === "bookings") {
-      // Wrap INSERT specifically so we pause in *your* code, not vendor code
-      const _insert = qb.insert?.bind(qb);
-      qb.insert = (...args) => {
-        console.trace('INSERT to "bookings" called with:', args);
-        debugger; // <-- DevTools will pause here in YOUR file
-        return _insert(...args);
-      };
-      // (Optional) wrap upsert/update too, if needed:
-      const _upsert = qb.upsert?.bind(qb);
-      if (_upsert) qb.upsert = (...args) => { console.trace('UPSERT "bookings"', args); debugger; return _upsert(...args); };
-      const _update = qb.update?.bind(qb);
-      if (_update) qb.update = (...args) => { console.trace('UPDATE "bookings"', args); debugger; return _update(...args); };
-    }
-    return qb;
-  };
-
-  // 2) Belt-and-suspenders: catch any fetch to the REST endpoint (in case a different client instance is used)
-  const _fetch = window.fetch.bind(window);
-  window.fetch = (input, init) => {
-    const url = typeof input === "string" ? input : input?.url || "";
-    if (url.includes("/rest/v1/bookings")) {
-      console.trace("FETCH → /rest/v1/bookings", { method: init?.method, body: init?.body });
-      debugger; // <-- pause here in YOUR file
-    }
-    return _fetch(input, init);
-  };
-}
-// ===== end DEV TRACE GUARDS =====
-
-
+const NIGHTLY_RATE_NZD = 175;
+const formatYMD = (date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 function App() {
 	const isValidEmail = (email) =>  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -74,22 +34,7 @@ function App() {
   });
 
   const [bookedDates, setBookedDates] = useState([]);
-  const [adminBookings, setAdminBookings] = useState([]);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [adminError, setAdminError] = useState("");
-
-  const isDateBooked = (date) => {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-
-  return bookedDates.some(({ start, end }) => {
-    const s = new Date(start);
-    const e = new Date(end);
-    s.setHours(0, 0, 0, 0);
-    e.setHours(0, 0, 0, 0);
-    return d >= s && d < e;  // NOTICE: `< e` instead of `<= e`
-  });
-};
+  const [paymentState, setPaymentState] = useState({ loading: false, message: "", error: "" });
 const isRangeAvailable = (start, end) => {
   const rangeStart = new Date(start);
   const rangeEnd = new Date(end);
@@ -122,7 +67,13 @@ const handleBooking = async () => {
     return;
   }
 
-  // ✅ No Supabase insert here. Payment first; DB on webhook.
+  const nights = Math.round((end - start) / (24 * 60 * 60 * 1000));
+  if (nights < 1) {
+    setPaymentState({ loading: false, message: "", error: "Please select at least one night." });
+    return;
+  }
+
+  setPaymentState({ loading: true, message: "", error: "" });
   try {
     const res = await fetch("/api/checkout", {
       method: "POST",
@@ -131,82 +82,35 @@ const handleBooking = async () => {
         name: bookingDetails.name,
         email: bookingDetails.email,
         dates: {
-          startDate: start.toISOString(),
-          endDate: end.toISOString(),
+          startDate: formatYMD(start),
+          endDate: formatYMD(end),
         },
       }),
     });
     const result = await res.json();
-    if (result?.url) {
+    if (res.ok && result?.url) {
       window.location.href = result.url;
     } else {
-      alert("Failed to initiate payment.");
+      setPaymentState({
+        loading: false,
+        message: "",
+        error: result?.error || "Payment could not be started. Please try again.",
+      });
     }
-  } catch (err) {
-    alert("Error connecting to payment gateway: " + err.message);
+  } catch {
+    setPaymentState({
+      loading: false,
+      message: "",
+      error: "Could not connect to the secure payment page. Please try again.",
+    });
   }
 };
-
-
-
-
-  const fetchAdminBookings = async () => {
-    try {
-      const res = await fetch("/api/fetch-bookings");
-      const data = await res.json();
-
-      if (res.ok) {
-        setAdminBookings(data);
-      } else {
-        console.error("Failed to fetch admin bookings:", data.error);
-      }
-    } catch (err) {
-      console.error("Network or server error:", err);
-    }
-  };
-
-  const handleAdminClick = async () => {
-    if (showAdmin) {
-      setShowAdmin(false);
-      return;
-    }
-
-    const input = prompt("Enter admin password:");
-    if (!input) return;
-
-    const { data, error } = await supabase
-      .from("admin_keys")
-      .select("*")
-      .eq("secret", input);
-
-    if (error) {
-      console.error("Supabase query error:", error);
-      setAdminError("Error checking credentials.");
-    } else if (data.length > 0) {
-      setShowAdmin(true);
-      setAdminError("");
-    } else {
-      setAdminError("Incorrect password.");
-    }
-  };
-
-  const deleteBooking = async (id) => {
-    const { error } = await supabase.from("bookings").delete().eq("id", id);
-    if (!error) {
-      setAdminBookings((prev) => prev.filter((b) => b.id !== id));
-      setBookedDates((prev) => prev.filter((b) => b.source !== "supabase" || b.id !== id));
-    } else {
-      console.error("Delete failed", error);
-    }
-  };
-
 
 useEffect(() => {
   const params = new URLSearchParams(window.location.search);
   const status = params.get("status");
   const sessionId = params.get("session_id");
 
-  // --- small helper to clear ?status&session_id from the URL
   const clearQuery = () => window.history.replaceState({}, "", window.location.pathname);
 
   // --- loader: Supabase → bookedDates (Supabase only; no iCal)
@@ -276,9 +180,40 @@ const loadDates = async () => {
 };
 // END REPLACEMENT
 
+  const finishReturnFromStripe = async () => {
+    if (status === "success" && sessionId) {
+      setPaymentState({ loading: true, message: "Confirming your booking...", error: "" });
+      try {
+        const response = await fetch(`/api/confirm-checkout?session_id=${encodeURIComponent(sessionId)}`);
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.error || "Confirmation failed");
+        setPaymentState({
+          loading: false,
+          message: "Payment received. Your booking is confirmed.",
+          error: "",
+        });
+      } catch (error) {
+        console.error("Booking confirmation failed:", error);
+        setPaymentState({
+          loading: false,
+          message: "Your payment was received. Please contact Brendon if your dates do not appear shortly.",
+          error: "",
+        });
+      } finally {
+        clearQuery();
+        await loadDates();
+      }
+      return;
+    }
 
+    if (status === "cancelled") {
+      setPaymentState({ loading: false, message: "", error: "Payment was cancelled. No booking was made." });
+      clearQuery();
+    }
+    await loadDates();
+  };
 
-  loadDates();
+  finishReturnFromStripe();
 }, []);
 
 
@@ -298,6 +233,13 @@ const loadDates = async () => {
     { name: "shower", width: 1200, height: 1600 },
     { name: "drive", width: 1200, height: 1600 },
   ];
+
+  const selectedStart = bookingDetails.dates[0]?.startDate;
+  const selectedEnd = bookingDetails.dates[0]?.endDate;
+  const selectedNights = selectedStart && selectedEnd
+    ? Math.max(0, Math.round((selectedEnd - selectedStart) / (24 * 60 * 60 * 1000)))
+    : 0;
+  const bookingTotal = selectedNights * NIGHTLY_RATE_NZD;
 
   return (    
     <>
@@ -361,13 +303,13 @@ const loadDates = async () => {
 </Helmet>
 
 
-    <div className="min-h-screen bg-yellow-100 flex flex-col sm:flex-row justify-center">
+    <div className="min-h-screen overflow-x-hidden bg-yellow-100 flex flex-col sm:flex-row justify-center">
      <div
   className="hidden sm:block w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-top sm:bg-left bg-contain sm:shrink-0"
   style={{ backgroundImage: "url('/images/sidebanner.jpg')" }}
 ></div>
 
-      <div className="flex-1 max-w-7xl p-4 sm:p-6">
+      <div className="min-w-0 flex-1 max-w-7xl p-4 sm:p-6">
         <div className="relative left-1/2 w-[90vw] max-w-screen-xl -translate-x-1/2 mb-6">
           <div className="bg-green-600 text-white py-6 rounded-xl text-center">
             <h1 className="text-4xl font-bold">Limestone Studio</h1>
@@ -430,7 +372,6 @@ const loadDates = async () => {
                 {galleryMeta.map((img, i) => {
                   const thumbJpg  = `/images/${img.name}-thumb.jpg`;   // ~600px, small
                   const largeWebp = `/images/${img.name}-large.webp`;  // lightbox image
-                  const largeJpg  = `/images/${img.name}.jpg`;         // fallback
 
                   return (
                     <Item
@@ -461,12 +402,13 @@ const loadDates = async () => {
           </div>
 		   <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
             <p className="mb-4 font-bold">Pricing</p>
-			<p className="mb-4">Prices range between $135 and $195 depending on season and number of guests</p>
+			<p className="mb-4">$175 NZD per night</p>
             </div>
 
-          {/* Availability card (separate section) */}
+          {/* Availability and booking */}
           <div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
-            <h2 className="text-2xl font-semibold">View availability (grayed out dates are booked)</h2>
+            <h2 className="text-2xl font-semibold">Book Your Stay</h2>
+            <p className="text-gray-700">Select your arrival and checkout dates. Gray dates are unavailable.</p>
 
             <BookingCalendar
               selectedRange={bookingDetails.dates}
@@ -476,12 +418,73 @@ const loadDates = async () => {
               bookedDates={bookedDates}
             />
 
-          
+            {selectedNights > 0 && (
+              <div className="border-y border-gray-200 py-4 text-gray-800">
+                <p>
+                  <strong>{format(selectedStart, "d MMM yyyy")}</strong> to{" "}
+                  <strong>{format(selectedEnd, "d MMM yyyy")}</strong>
+                </p>
+                <p className="mt-1">
+                  {selectedNights} night{selectedNights === 1 ? "" : "s"} at ${NIGHTLY_RATE_NZD} NZD
+                </p>
+                <p className="mt-2 text-xl font-semibold">Total: ${bookingTotal} NZD</p>
+              </div>
+            )}
 
-            {/* Call to book */}
-            <p className="text-2xl font-semibold">
-              To book, please call or text Brendon on {" "}
-              <a href="tel:+642885218637" className="underline">028&nbsp;8521&nbsp;8637</a>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="text-sm font-medium text-gray-700">
+                Name
+                <input
+                  type="text"
+                  autoComplete="name"
+                  value={bookingDetails.name}
+                  onChange={(event) => setBookingDetails({ ...bookingDetails, name: event.target.value })}
+                  className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-base"
+                />
+              </label>
+              <label className="text-sm font-medium text-gray-700">
+                Email
+                <input
+                  type="email"
+                  autoComplete="email"
+                  value={bookingDetails.email}
+                  onChange={(event) => setBookingDetails({ ...bookingDetails, email: event.target.value })}
+                  className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-base"
+                />
+              </label>
+            </div>
+
+            {bookingDetails.email && !isValidEmail(bookingDetails.email) && (
+              <p className="text-sm text-red-700">Please enter a valid email address.</p>
+            )}
+            {paymentState.message && (
+              <p className="rounded bg-green-50 p-3 font-medium text-green-800" role="status">
+                {paymentState.message}
+              </p>
+            )}
+            {paymentState.error && (
+              <p className="rounded bg-red-50 p-3 text-red-800" role="alert">
+                {paymentState.error}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={handleBooking}
+              disabled={
+                paymentState.loading ||
+                selectedNights < 1 ||
+                !bookingDetails.name.trim() ||
+                !isValidEmail(bookingDetails.email)
+              }
+              className="w-full rounded bg-green-700 px-6 py-3 font-semibold text-white hover:bg-green-800 disabled:cursor-not-allowed disabled:bg-gray-400"
+            >
+              {paymentState.loading ? "Please wait..." : `Pay $${bookingTotal} NZD securely`}
+            </button>
+
+            <p className="text-sm text-gray-600">
+              Prefer to book by phone? Call or text Brendon on{" "}
+              <a href="tel:+642885218637" className="underline">028&nbsp;8521&nbsp;8637</a>.
             </p>
           </div>
         </div>{/* ← closes .max-w-4xl container */}

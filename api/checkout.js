@@ -1,11 +1,24 @@
 // /api/checkout.js
 import Stripe from "stripe";
+import { createClient } from "@supabase/supabase-js";
+
+const BOOKING_COM_ICAL_URL = "https://ical.booking.com/v1/export?t=e30eb621-32d5-454e-a0cb-c6acbdff90bf";
+
+const hasIcalOverlap = (ical, startDate, endDate) =>
+  Array.from(ical.matchAll(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g)).some(([event]) => {
+    const start = event.match(/DTSTART;VALUE=DATE:(\d{8})/)?.[1];
+    const end = event.match(/DTEND;VALUE=DATE:(\d{8})/)?.[1];
+    if (!start || !end) return false;
+    const eventStart = `${start.slice(0, 4)}-${start.slice(4, 6)}-${start.slice(6, 8)}`;
+    const eventEnd = `${end.slice(0, 4)}-${end.slice(4, 6)}-${end.slice(6, 8)}`;
+    return startDate < eventEnd && endDate > eventStart;
+  });
 
 /**
  * Env required on Vercel:
  *  - STRIPE_SECRET_KEY
  *  - NEXT_PUBLIC_BASE_URL   (e.g. https://www.limestonestudio.co.nz)
- *  - NIGHTLY_RATE_NZD       (optional; default 160)
+ *  - NIGHTLY_RATE_NZD       (optional; default 175)
  *
  * Frontend POST body shape:
  *  {
@@ -25,18 +38,46 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Compute nights: block [start, end) in local time
-    const toMidnight = (d) => {
-      const x = new Date(d);
-      x.setHours(0, 0, 0, 0);
-      return x;
+    const parseDate = (value) => {
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+      if (!match) return null;
+      return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
     };
-    const start = toMidnight(dates.startDate);
-    const end = toMidnight(dates.endDate);
-    const MS_PER_NIGHT = 24 * 60 * 60 * 1000;
-    const nights = Math.max(1, Math.round((end - start) / MS_PER_NIGHT));
+    const start = parseDate(dates.startDate);
+    const end = parseDate(dates.endDate);
+    if (!start || !end || end <= start) {
+      return res.status(400).json({ error: "Please select at least one night" });
+    }
 
-    const nightlyNZD = Number(process.env.NIGHTLY_RATE_NZD || 160); // <— change default if you like
+    const supabase = createClient(
+      process.env.SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    );
+    const { data: overlaps, error: availabilityError } = await supabase
+      .from("bookings")
+      .select("id")
+      .lt("start_date", dates.endDate)
+      .gt("end_date", dates.startDate)
+      .limit(1);
+
+    if (availabilityError) throw availabilityError;
+    if (overlaps?.length) {
+      return res.status(409).json({ error: "Those dates have just become unavailable. Please choose other dates." });
+    }
+
+    const icalResponse = await fetch(BOOKING_COM_ICAL_URL, { cache: "no-store" });
+    if (!icalResponse.ok) throw new Error("Could not verify Booking.com availability");
+    if (hasIcalOverlap(await icalResponse.text(), dates.startDate, dates.endDate)) {
+      return res.status(409).json({ error: "Those dates have just become unavailable. Please choose other dates." });
+    }
+
+    const MS_PER_NIGHT = 24 * 60 * 60 * 1000;
+    const nights = Math.round((end - start) / MS_PER_NIGHT);
+
+    const nightlyNZD = Number(process.env.NIGHTLY_RATE_NZD || 175);
+    if (!Number.isFinite(nightlyNZD) || nightlyNZD <= 0) {
+      throw new Error("Invalid nightly rate configuration");
+    }
     const amountNZD = nightlyNZD * nights;
     const amountCents = Math.round(amountNZD * 100);
 
@@ -57,7 +98,7 @@ export default async function handler(req, res) {
             unit_amount: amountCents,
             product_data: {
               name: `Limestone Studio (${nights} night${nights > 1 ? "s" : ""})`,
-              description: `${start.toLocaleDateString("en-NZ")} → ${end.toLocaleDateString("en-NZ")}`,
+              description: `${dates.startDate} to ${dates.endDate}`,
             },
           },
         },
@@ -67,8 +108,8 @@ cancel_url:  `${baseUrl}/?status=cancelled`,
       metadata: {
         name,
         email,
-        startDate: start.toISOString(),
-        endDate: end.toISOString(),
+        startDate: dates.startDate,
+        endDate: dates.endDate,
         nights: String(nights),
         nightlyNZD: String(nightlyNZD),
         amountNZD: String(amountNZD),

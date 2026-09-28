@@ -2,10 +2,7 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const toYMD = (iso) => {
-  const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-};
+const toYMD = (value) => value.slice(0, 10);
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
