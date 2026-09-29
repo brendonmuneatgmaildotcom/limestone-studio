@@ -356,13 +356,13 @@ const loadDates = async () => {
         />
       </picture>
 
-      <div className="flex justify-center">
+      <div className="sm:grid sm:grid-cols-[minmax(6rem,1fr)_minmax(0,80rem)_minmax(6rem,1fr)]">
         <div
-          className="hidden w-24 shrink-0 self-stretch bg-contain bg-left-top bg-repeat-y sm:block"
+          className="hidden self-stretch bg-left-top bg-repeat-y [background-size:6rem_auto] sm:block"
           style={{ backgroundImage: "url('/images/sidebanner.jpg')" }}
         ></div>
 
-        <div className="min-w-0 flex-1 max-w-7xl p-4 sm:p-6">
+        <div className="min-w-0 w-full p-4 sm:p-6">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
           <p className="text-sm text-center text-gray-600">
             📍 Top of Hospital Rd, Whangārei, New Zealand
@@ -565,7 +565,7 @@ const loadDates = async () => {
 
       {/* RIGHT: vertical/banner strip (sibling of main content) */}
       <div
-        className="hidden w-24 shrink-0 self-stretch bg-contain bg-right-top bg-repeat-y sm:block"
+        className="hidden self-stretch bg-right-top bg-repeat-y [background-size:6rem_auto] sm:block"
         style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}
       ></div>
 
