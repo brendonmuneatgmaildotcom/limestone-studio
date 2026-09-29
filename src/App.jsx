@@ -329,44 +329,41 @@ const loadDates = async () => {
 </Helmet>
 
 
-    <div className="min-h-screen overflow-x-hidden bg-yellow-100 flex flex-col sm:flex-row justify-center">
-     <div
-  className="hidden sm:block w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-top sm:bg-left bg-contain sm:shrink-0"
-  style={{ backgroundImage: "url('/images/sidebanner.jpg')" }}
-></div>
+    <div className="min-h-screen overflow-x-hidden bg-yellow-100">
+      <header className="w-full bg-green-600 py-6 text-center text-white">
+        <h1 className="text-4xl font-bold">Limestone Studio</h1>
+      </header>
+      <picture>
+        <source
+          type="image/avif"
+          srcSet="/images/limestone-640.avif 640w, /images/limestone-1024.avif 1024w, /images/limestone-1600.avif 1600w"
+          sizes="100vw"
+        />
+        <source
+          type="image/webp"
+          srcSet="/images/limestone-640.webp 640w, /images/limestone-1024.webp 1024w, /images/limestone-1600.webp 1600w"
+          sizes="100vw"
+        />
+        <img
+          src="/images/limestone-1024.jpg"
+          alt="Limestone Studio"
+          width="1600"
+          height="1200"
+          className="h-[67.5vw] max-h-[960px] w-full object-cover object-center shadow-lg"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
 
-      <div className="min-w-0 flex-1 max-w-7xl p-4 sm:p-6">
-        <div className="relative left-1/2 w-[90vw] max-w-screen-xl -translate-x-1/2 mb-6">
-          <div className="bg-green-600 text-white py-6 rounded-xl text-center">
-            <h1 className="text-4xl font-bold">Limestone Studio</h1>
-        
-          </div>
-          <picture>
-  <source
-    type="image/avif"
-    srcSet="/images/limestone-640.avif 640w, /images/limestone-1024.avif 1024w, /images/limestone-1600.avif 1600w"
-    sizes="100vw"
-  />
-  <source
-    type="image/webp"
-    srcSet="/images/limestone-640.webp 640w, /images/limestone-1024.webp 1024w, /images/limestone-1600.webp 1600w"
-    sizes="100vw"
-  />
-  <img
-    src="/images/limestone-1024.jpg"
-    alt="Limestone Studio"
-    width="1600"
-    height="1200"
-    className="w-full object-contain rounded-2xl shadow-lg mt-4"
-    loading="eager"
-    fetchpriority="high"
-    decoding="async"
-  />
-</picture>
+      <div className="flex justify-center">
+        <div
+          className="hidden w-24 shrink-0 bg-contain bg-left bg-repeat-y sm:block"
+          style={{ backgroundImage: "url('/images/sidebanner.jpg')" }}
+        ></div>
 
-        </div>
-
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
+        <div className="min-w-0 flex-1 max-w-7xl p-4 sm:p-6">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
           <p className="text-sm text-center text-gray-600">
             📍 Top of Hospital Rd, Whangārei, New Zealand
           </p>
@@ -563,16 +560,17 @@ const loadDates = async () => {
               <a href="tel:+642885218637" className="underline">028&nbsp;8521&nbsp;8637</a>.
             </p>
           </div>
-        </div>{/* ← closes .max-w-4xl container */}
-      </div>{/* ← closes .flex-1 main content column */}
+        </div>{/* closes .max-w-4xl container */}
+      </div>{/* closes .flex-1 main content column */}
 
       {/* RIGHT: vertical/banner strip (sibling of main content) */}
-<div
-  className="hidden sm:block w-full h-16 sm:w-24 sm:h-auto bg-repeat-x sm:bg-repeat-y bg-bottom sm:bg-right bg-contain sm:shrink-0"
-  style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}
-></div>
+      <div
+        className="hidden w-24 shrink-0 bg-contain bg-right bg-repeat-y sm:block"
+        style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}
+      ></div>
 
-    </div>{/* ← closes outer .min-h-screen flex container */}
+      </div>{/* closes side-banner content row */}
+    </div>{/* closes page */}
   </>
 );
 }
