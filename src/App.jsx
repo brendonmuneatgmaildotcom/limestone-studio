@@ -249,6 +249,7 @@ const loadDates = async () => {
     { name: "also-5", width: 1600, height: 1200 },
     { name: "also-6", width: 800, height: 583 },
     { name: "also-7", width: 813, height: 597 },
+    { name: "also-8", width: 1600, height: 1200 },
   ];
 
   const selectedStart = bookingDetails.dates[0]?.startDate;
