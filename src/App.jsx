@@ -358,7 +358,7 @@ const loadDates = async () => {
 
       <div className="flex justify-center">
         <div
-          className="hidden w-24 shrink-0 bg-contain bg-left bg-repeat-y sm:block"
+          className="hidden w-24 shrink-0 self-stretch bg-contain bg-left-top bg-repeat-y sm:block"
           style={{ backgroundImage: "url('/images/sidebanner.jpg')" }}
         ></div>
 
@@ -565,7 +565,7 @@ const loadDates = async () => {
 
       {/* RIGHT: vertical/banner strip (sibling of main content) */}
       <div
-        className="hidden w-24 shrink-0 bg-contain bg-right bg-repeat-y sm:block"
+        className="hidden w-24 shrink-0 self-stretch bg-contain bg-right-top bg-repeat-y sm:block"
         style={{ backgroundImage: "url('/images/rightbanner.jpg')" }}
       ></div>
 
