@@ -540,7 +540,7 @@ const loadDates = async () => {
             >
               {paymentState.loading
                 ? "Please wait..."
-                : "Payment system under rebuild - no payments will be processed"}
+                : `Pay $${formatNZD(bookingTotal)} NZD securely`}
             </button>
 
             <p className="text-sm text-gray-600">
