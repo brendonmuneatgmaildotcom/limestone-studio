@@ -38,6 +38,7 @@ function App() {
   });
 
   const [bookedDates, setBookedDates] = useState([]);
+  const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
   const [paymentState, setPaymentState] = useState({ loading: false, message: "", error: "" });
 const isRangeAvailable = (start, end) => {
   const rangeStart = new Date(start);
@@ -240,6 +241,16 @@ const loadDates = async () => {
     { name: "drive", width: 1200, height: 1600 },
   ];
 
+  const propertyGalleryMeta = [
+    { name: "also-1", width: 1600, height: 1200 },
+    { name: "also-2", width: 1600, height: 1200 },
+    { name: "also-3", width: 1600, height: 1200 },
+    { name: "also-4", width: 1600, height: 1200 },
+    { name: "also-5", width: 1600, height: 1200 },
+    { name: "also-6", width: 800, height: 583 },
+    { name: "also-7", width: 813, height: 597 },
+  ];
+
   const selectedStart = bookingDetails.dates[0]?.startDate;
   const selectedEnd = bookingDetails.dates[0]?.endDate;
   const selectedNights = selectedStart && selectedEnd
@@ -392,7 +403,7 @@ const loadDates = async () => {
 
             <Gallery>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {galleryMeta.map((img, i) => {
+                {galleryMeta.slice(0, isGalleryExpanded ? galleryMeta.length : 2).map((img, i) => {
                   const thumbJpg  = `/images/${img.name}-thumb.jpg`;   // ~600px, small
                   const largeWebp = `/images/${img.name}-large.webp`;  // lightbox image
 
@@ -421,6 +432,66 @@ const loadDates = async () => {
                   );
                 })}
               </div>
+
+              {!isGalleryExpanded && (
+                <button
+                  type="button"
+                  aria-expanded="false"
+                  onClick={() => setIsGalleryExpanded(true)}
+                  className="mt-4 font-bold text-gray-800 hover:text-green-700"
+                >
+                  See more...
+                </button>
+              )}
+
+              {isGalleryExpanded && (
+                <>
+                  <h3 className="mb-3 mt-8 text-2xl font-bold text-gray-800">Also on the property</h3>
+                  <p className="mb-5 text-gray-700">
+                    If you are interested in the limestone formations you see at the studio be sure to have Brendon and Delphine show you round the rest of the property including the cliff edge and its panoramic views.
+                  </p>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {propertyGalleryMeta.map((img) => {
+                      const thumbJpg = `/images/${img.name}-thumb.jpg`;
+                      const largeWebp = `/images/${img.name}-large.webp`;
+
+                      return (
+                        <Item
+                          key={img.name}
+                          original={largeWebp}
+                          thumbnail={thumbJpg}
+                          width={img.width}
+                          height={img.height}
+                        >
+                          {({ ref, open }) => (
+                            <img
+                              ref={ref}
+                              onClick={open}
+                              src={thumbJpg}
+                              alt="Limestone formations and views around the property"
+                              width={img.width}
+                              height={img.height}
+                              loading="lazy"
+                              decoding="async"
+                              className="h-auto w-full cursor-pointer rounded-xl object-contain transition-transform duration-300 ease-in-out hover:scale-105"
+                            />
+                          )}
+                        </Item>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    aria-expanded="true"
+                    onClick={() => setIsGalleryExpanded(false)}
+                    className="mt-4 font-bold text-gray-800 hover:text-green-700"
+                  >
+                    See less...
+                  </button>
+                </>
+              )}
             </Gallery>
           </div>
           {/* Availability and booking */}
