@@ -25,6 +25,7 @@ function App() {
     name: "",
     email: "",
     guests: 1,
+    nonRefundable: false,
     dates: [
       {
         startDate: new Date(),
@@ -83,6 +84,7 @@ const handleBooking = async () => {
         name: bookingDetails.name,
         email: bookingDetails.email,
         guests: bookingDetails.guests,
+        nonRefundable: bookingDetails.nonRefundable,
         dates: {
           startDate: formatYMD(start),
           endDate: formatYMD(end),
@@ -242,9 +244,15 @@ const loadDates = async () => {
     ? Math.max(0, Math.round((selectedEnd - selectedStart) / (24 * 60 * 60 * 1000)))
     : 0;
   const stayPrice = selectedNights > 0
-    ? calculateStayPrice(formatYMD(selectedStart), formatYMD(selectedEnd), bookingDetails.guests)
-    : { amountNZD: 0, breakdown: [] };
+    ? calculateStayPrice(
+        formatYMD(selectedStart),
+        formatYMD(selectedEnd),
+        bookingDetails.guests,
+        bookingDetails.nonRefundable,
+      )
+    : { subtotalNZD: 0, discountNZD: 0, amountNZD: 0, breakdown: [] };
   const bookingTotal = stayPrice.amountNZD;
+  const formatNZD = (amount) => Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
   const rateGroups = stayPrice.breakdown.reduce((groups, night) => {
     groups[night.total] = (groups[night.total] || 0) + 1;
     return groups;
@@ -442,7 +450,38 @@ const loadDates = async () => {
                     <p key={rate}>{count} night{count > 1 ? "s" : ""} at ${rate} NZD</p>
                   ))}
                 </div>
-                <p className="mt-2 text-xl font-semibold">Total: ${bookingTotal} NZD</p>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    {!bookingDetails.nonRefundable && (
+                      <p className="text-sm text-gray-600">
+                        Refundable up until 24 hours before check-in
+                      </p>
+                    )}
+                    {bookingDetails.nonRefundable && (
+                      <p className="text-sm text-green-700">
+                        10% non-refundable discount: -${formatNZD(stayPrice.discountNZD)} NZD
+                      </p>
+                    )}
+                    <p className="text-xl font-semibold">Total: ${formatNZD(bookingTotal)} NZD</p>
+                  </div>
+                  <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-800">
+                    <input
+                      type="checkbox"
+                      checked={bookingDetails.nonRefundable}
+                      onChange={(event) =>
+                        setBookingDetails({ ...bookingDetails, nonRefundable: event.target.checked })
+                      }
+                      className="peer sr-only"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-gray-500 text-base font-bold text-white transition-colors peer-checked:bg-green-700 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green-700"
+                    >
+                      ✓
+                    </span>
+                    <span>Go non-refundable for 10% off</span>
+                  </label>
+                </div>
               </div>
             )}
 

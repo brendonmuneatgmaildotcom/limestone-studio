@@ -24,7 +24,8 @@ const hasIcalOverlap = (ical, startDate, endDate) =>
  *    "name": "Guest Name",
  *    "email": "guest@example.com",
  *    "dates": { "startDate": "YYYY-MM-DD", "endDate": "YYYY-MM-DD" },
- *    "guests": 1
+ *    "guests": 1,
+ *    "nonRefundable": false
  *  }
  */
 
@@ -33,9 +34,16 @@ export default async function handler(req, res) {
 
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const { name, email, dates, guests } = req.body || {};
+    const { name, email, dates, guests, nonRefundable = false } = req.body || {};
     const guestCount = Number(guests);
-    if (!name || !email || !dates?.startDate || !dates?.endDate || ![1, 2].includes(guestCount)) {
+    if (
+      !name ||
+      !email ||
+      !dates?.startDate ||
+      !dates?.endDate ||
+      ![1, 2].includes(guestCount) ||
+      typeof nonRefundable !== "boolean"
+    ) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -76,6 +84,7 @@ export default async function handler(req, res) {
       dates.startDate,
       dates.endDate,
       guestCount,
+      nonRefundable,
     );
     const amountCents = Math.round(amountNZD * 100);
 
@@ -96,7 +105,7 @@ export default async function handler(req, res) {
             unit_amount: amountCents,
             product_data: {
               name: `Limestone Studio (${nights} night${nights > 1 ? "s" : ""})`,
-              description: `${dates.startDate} to ${dates.endDate}, ${guestCount} guest${guestCount > 1 ? "s" : ""}`,
+              description: `${dates.startDate} to ${dates.endDate}, ${guestCount} guest${guestCount > 1 ? "s" : ""}${nonRefundable ? ", non-refundable" : ""}`,
             },
           },
         },
@@ -109,6 +118,7 @@ cancel_url:  `${baseUrl}/?status=cancelled`,
         startDate: dates.startDate,
         endDate: dates.endDate,
         guests: String(guestCount),
+        nonRefundable: String(nonRefundable),
         nights: String(nights),
         amountNZD: String(amountNZD),
       },
