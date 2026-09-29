@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import { sendBookingNotification } from "../lib/booking-notification.js";
 
 export const config = {
   api: { bodyParser: false },
@@ -55,7 +56,15 @@ export default async function handler(req, res) {
     .limit(1);
 
   if (lookupError) return res.status(500).json({ error: lookupError.message });
-  if (existing?.length) return res.status(200).json({ received: true });
+  if (existing?.length) {
+    try {
+      await sendBookingNotification(session);
+    } catch (notificationError) {
+      console.error("Failed to send booking notification:", notificationError);
+      return res.status(500).json({ error: "Could not send booking notification" });
+    }
+    return res.status(200).json({ received: true });
+  }
 
   const { error } = await supabase.from("bookings").insert([
     {
@@ -73,6 +82,13 @@ export default async function handler(req, res) {
   if (error) {
     console.error("Failed to store paid booking:", error);
     return res.status(500).json({ error: "Could not store booking" });
+  }
+
+  try {
+    await sendBookingNotification(session);
+  } catch (notificationError) {
+    console.error("Failed to send booking notification:", notificationError);
+    return res.status(500).json({ error: "Could not send booking notification" });
   }
 
   return res.status(200).json({ received: true });
