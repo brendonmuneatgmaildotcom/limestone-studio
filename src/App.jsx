@@ -7,6 +7,7 @@ import { Helmet } from "react-helmet";
 import BookingCalendar from "./BookingCalendar";
 import ResponsiveImage from "./components/ResponsiveImage";
 import { calculateStayPrice } from "../lib/pricing.js";
+import { getBookingCutoff } from "../lib/booking-cutoff.js";
 
 // Parse "YYYY-MM-DD" as LOCAL midnight to avoid UTC shifts in NZ time
 const parseYMD = (s) => {
@@ -20,6 +21,7 @@ const formatYMD = (date) =>
 
 function App() {
 	const isValidEmail = (email) =>  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const initialStartDate = parseYMD(getBookingCutoff().earliestBookableYMD);
 
   const [bookingDetails, setBookingDetails] = useState({
     name: "",
@@ -28,8 +30,8 @@ function App() {
     nonRefundable: false,
     dates: [
       {
-        startDate: new Date(),
-        endDate: addDays(new Date(), 1),
+        startDate: initialStartDate,
+        endDate: addDays(initialStartDate, 1),
         key: "selection",
       },
     ],
@@ -250,7 +252,14 @@ const loadDates = async () => {
         bookingDetails.guests,
         bookingDetails.nonRefundable,
       )
-    : { subtotalNZD: 0, discountNZD: 0, amountNZD: 0, breakdown: [] };
+    : {
+        subtotalNZD: 0,
+        nonRefundableDiscountNZD: 0,
+        longStayDiscountNZD: 0,
+        discountNZD: 0,
+        amountNZD: 0,
+        breakdown: [],
+      };
   const bookingTotal = stayPrice.amountNZD;
   const formatNZD = (amount) => Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
   const rateGroups = stayPrice.breakdown.reduce((groups, night) => {
@@ -452,9 +461,15 @@ const loadDates = async () => {
                   )}
                   {bookingDetails.nonRefundable && (
                     <p className="text-sm text-green-700">
-                      10% non-refundable discount: -${formatNZD(stayPrice.discountNZD)} NZD
+                      10% non-refundable discount: -${formatNZD(stayPrice.nonRefundableDiscountNZD)} NZD
                     </p>
                   )}
+                  <p className={selectedNights >= 6 ? "text-sm text-green-700" : "text-sm text-gray-600"}>
+                    10% extra discount for one week stays (6 nights)
+                    {selectedNights >= 6
+                      ? `: -$${formatNZD(stayPrice.longStayDiscountNZD)} NZD`
+                      : ""}
+                  </p>
                   <div className="mt-1 flex flex-wrap items-center gap-x-8 gap-y-3">
                     <p className="text-xl font-semibold">Total: ${formatNZD(bookingTotal)} NZD</p>
                     <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-800">
@@ -470,7 +485,7 @@ const loadDates = async () => {
                         aria-hidden="true"
                         className="flex h-6 w-12 shrink-0 items-center justify-center rounded bg-gray-500 text-base font-bold text-white transition-colors peer-checked:bg-green-700 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green-700"
                       >
-                        ✓
+                        {bookingDetails.nonRefundable ? "✓" : "X"}
                       </span>
                       <span>Go non-refundable for 10% off</span>
                     </label>

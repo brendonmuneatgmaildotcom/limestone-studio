@@ -1,7 +1,8 @@
 // src/BookingCalendar.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import { getBookingCutoff } from "../lib/booking-cutoff.js";
 
 const atMidnight = (value) => {
   const date = new Date(value);
@@ -10,6 +11,15 @@ const atMidnight = (value) => {
 };
 
 function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const earliestBookableDate = atMidnight(getBookingCutoff(now).earliestBookableYMD);
+
   const isBooked = (date) => {
     const day = atMidnight(date);
     return bookedDates.some(({ start, end }) => {
@@ -41,7 +51,7 @@ function BookingCalendar({ selectedRange, setSelectedRange, bookedDates }) {
         min={1}
         selected={selected}
         onSelect={handleSelect}
-        disabled={[{ before: atMidnight(new Date()) }, isBooked]}
+        disabled={[{ before: earliestBookableDate }, isBooked]}
         excludeDisabled
         modifiers={{ booked: isBooked }}
         modifiersStyles={{

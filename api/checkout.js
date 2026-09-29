@@ -2,6 +2,7 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { calculateStayPrice } from "../lib/pricing.js";
+import { getBookingCutoff } from "../lib/booking-cutoff.js";
 
 const BOOKING_COM_ICAL_URL = "https://ical.booking.com/v1/export?t=e30eb621-32d5-454e-a0cb-c6acbdff90bf";
 
@@ -57,6 +58,9 @@ export default async function handler(req, res) {
     if (!start || !end || end <= start) {
       return res.status(400).json({ error: "Please select at least one night" });
     }
+    if (dates.startDate < getBookingCutoff().earliestBookableYMD) {
+      return res.status(400).json({ error: "Same-day bookings close at 11am New Zealand time" });
+    }
 
     const supabase = createClient(
       process.env.SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL,
@@ -80,7 +84,7 @@ export default async function handler(req, res) {
       return res.status(409).json({ error: "Those dates have just become unavailable. Please choose other dates." });
     }
 
-    const { nights, amountNZD } = calculateStayPrice(
+    const { nights, amountNZD, longStayDiscountNZD } = calculateStayPrice(
       dates.startDate,
       dates.endDate,
       guestCount,
@@ -105,7 +109,7 @@ export default async function handler(req, res) {
             unit_amount: amountCents,
             product_data: {
               name: `Limestone Studio (${nights} night${nights > 1 ? "s" : ""})`,
-              description: `${dates.startDate} to ${dates.endDate}, ${guestCount} guest${guestCount > 1 ? "s" : ""}${nonRefundable ? ", non-refundable" : ""}`,
+              description: `${dates.startDate} to ${dates.endDate}, ${guestCount} guest${guestCount > 1 ? "s" : ""}${nonRefundable ? ", non-refundable" : ""}${longStayDiscountNZD > 0 ? ", 10% week-stay discount" : ""}`,
             },
           },
         },
@@ -119,6 +123,7 @@ cancel_url:  `${baseUrl}/?status=cancelled`,
         endDate: dates.endDate,
         guests: String(guestCount),
         nonRefundable: String(nonRefundable),
+        longStayDiscount: String(longStayDiscountNZD > 0),
         nights: String(nights),
         amountNZD: String(amountNZD),
       },
