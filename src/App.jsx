@@ -450,37 +450,37 @@ const loadDates = async () => {
                     <p key={rate}>{count} night{count > 1 ? "s" : ""} at ${rate} NZD</p>
                   ))}
                 </div>
-                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    {!bookingDetails.nonRefundable && (
-                      <p className="text-sm text-gray-600">
-                        Refundable up until 24 hours before check-in
-                      </p>
-                    )}
-                    {bookingDetails.nonRefundable && (
-                      <p className="text-sm text-green-700">
-                        10% non-refundable discount: -${formatNZD(stayPrice.discountNZD)} NZD
-                      </p>
-                    )}
+                <div className="mt-3">
+                  {!bookingDetails.nonRefundable && (
+                    <p className="text-sm text-gray-600">
+                      Refundable up until 24 hours before check-in
+                    </p>
+                  )}
+                  {bookingDetails.nonRefundable && (
+                    <p className="text-sm text-green-700">
+                      10% non-refundable discount: -${formatNZD(stayPrice.discountNZD)} NZD
+                    </p>
+                  )}
+                  <div className="mt-1 flex flex-wrap items-center gap-x-8 gap-y-3">
                     <p className="text-xl font-semibold">Total: ${formatNZD(bookingTotal)} NZD</p>
+                    <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-800">
+                      <input
+                        type="checkbox"
+                        checked={bookingDetails.nonRefundable}
+                        onChange={(event) =>
+                          setBookingDetails({ ...bookingDetails, nonRefundable: event.target.checked })
+                        }
+                        className="peer sr-only"
+                      />
+                      <span
+                        aria-hidden="true"
+                        className="flex h-6 w-12 shrink-0 items-center justify-center rounded bg-gray-500 text-base font-bold text-white transition-colors peer-checked:bg-green-700 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green-700"
+                      >
+                        ✓
+                      </span>
+                      <span>Go non-refundable for 10% off</span>
+                    </label>
                   </div>
-                  <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-800">
-                    <input
-                      type="checkbox"
-                      checked={bookingDetails.nonRefundable}
-                      onChange={(event) =>
-                        setBookingDetails({ ...bookingDetails, nonRefundable: event.target.checked })
-                      }
-                      className="peer sr-only"
-                    />
-                    <span
-                      aria-hidden="true"
-                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-gray-500 text-base font-bold text-white transition-colors peer-checked:bg-green-700 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green-700"
-                    >
-                      ✓
-                    </span>
-                    <span>Go non-refundable for 10% off</span>
-                  </label>
                 </div>
               </div>
             )}
