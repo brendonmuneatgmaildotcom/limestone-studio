@@ -417,12 +417,6 @@ const loadDates = async () => {
               </div>
             </Gallery>
           </div>
-		   <div className="bg-white rounded-2xl shadow-md p-6 text-gray-800">
-            <p className="mb-4 font-bold">Pricing</p>
-			<p className="mb-2">Base rates range from $135 to $180 NZD per night, depending on season, day and number of guests.</p>
-			<p>Christmas premiums apply from 15 December to 30 January, with an additional peak premium from 22 December to 5 January.</p>
-            </div>
-
           {/* Availability and booking */}
           <div className="mt-8 space-y-6 bg-white p-6 rounded-2xl shadow-lg">
             <h2 className="text-2xl font-semibold">Book Your Stay</h2>
