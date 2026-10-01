@@ -466,7 +466,7 @@ const loadDates = async () => {
                           height={img.height}
                           loading="lazy"
                           decoding="async"
-                          className="rounded-xl object-contain w-full h-auto transition-transform duration-300 ease-in-out transform hover:scale-125"
+                          className="h-auto w-full cursor-pointer rounded-xl object-contain"
                         />
                       )}
                     </Item>
@@ -515,7 +515,7 @@ const loadDates = async () => {
                               height={img.height}
                               loading="lazy"
                               decoding="async"
-                              className="h-auto w-full cursor-pointer rounded-xl object-contain transition-transform duration-300 ease-in-out hover:scale-105"
+                              className="h-auto w-full cursor-pointer rounded-xl object-contain"
                             />
                           )}
                         </Item>
