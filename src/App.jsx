@@ -38,6 +38,7 @@ function App() {
   });
 
   const [bookedDates, setBookedDates] = useState([]);
+  const [availabilityLoaded, setAvailabilityLoaded] = useState(false);
   const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
   const [paymentState, setPaymentState] = useState({ loading: false, message: "", error: "" });
 const isRangeAvailable = (start, end) => {
@@ -126,6 +127,7 @@ const loadDates = async () => {
   try {
     // 1) Supabase bookings
     const res = await fetch("/api/fetch-bookings");
+    if (!res.ok) throw new Error("Could not load direct-booking availability");
     const data = await res.json();
 
     const supabaseDates = Array.isArray(data)
@@ -172,17 +174,55 @@ const loadDates = async () => {
           })
           .filter(Boolean);
       } else {
-        console.error("Booking.com iCal fetch failed:", icalRes.status, icalRes.statusText);
+        throw new Error(`Booking.com availability failed: ${icalRes.status}`);
       }
     } catch (icalErr) {
       console.error("Failed to import Booking.com iCal:", icalErr);
+      throw icalErr;
     }
 
-    // 3) Merge & set
-    setBookedDates([...supabaseDates, ...events]);
+    // 3) Merge, then correct the preselected range if availability arrived after it.
+    const allBookedDates = [...supabaseDates, ...events];
+    const overlapsBooking = (start, end) =>
+      allBookedDates.some(({ start: bookedStart, end: bookedEnd }) =>
+        start < bookedEnd && end > bookedStart
+      );
+
+    setBookedDates(allBookedDates);
+    setBookingDetails((current) => {
+      const selectedStart = current.dates[0]?.startDate;
+      const selectedEnd = current.dates[0]?.endDate;
+      const earliest = parseYMD(getBookingCutoff().earliestBookableYMD);
+      const selectionIsUnavailable =
+        !selectedStart ||
+        !selectedEnd ||
+        selectedStart < earliest ||
+        overlapsBooking(selectedStart, selectedEnd);
+
+      if (!selectionIsUnavailable) return current;
+
+      let nextStart = earliest;
+      for (let day = 0; day < 730; day += 1) {
+        const nextEnd = addDays(nextStart, 1);
+        if (!overlapsBooking(nextStart, nextEnd)) {
+          return {
+            ...current,
+            dates: [{ startDate: nextStart, endDate: nextEnd, key: "selection" }],
+          };
+        }
+        nextStart = nextEnd;
+      }
+
+      return { ...current, dates: [] };
+    });
+    setAvailabilityLoaded(true);
   } catch (err) {
     console.error("loadDates() failed:", err);
-    setBookedDates([]); // safe fallback
+    setPaymentState({
+      loading: false,
+      message: "",
+      error: "Availability could not be checked. Please refresh the page before booking.",
+    });
   }
 };
 // END REPLACEMENT
@@ -616,6 +656,7 @@ const loadDates = async () => {
               onClick={handleBooking}
               disabled={
                 paymentState.loading ||
+                !availabilityLoaded ||
                 selectedNights < 1 ||
                 !bookingDetails.name.trim() ||
                 !isValidEmail(bookingDetails.email)
@@ -624,6 +665,8 @@ const loadDates = async () => {
             >
               {paymentState.loading
                 ? "Please wait..."
+                : !availabilityLoaded
+                  ? "Checking availability..."
                 : `Pay $${formatNZD(bookingTotal)} NZD securely`}
             </button>
 
